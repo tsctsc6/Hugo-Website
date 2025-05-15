@@ -4,6 +4,7 @@ draft = false
 title = '给 Cloudflare Tunnel 添加前置代理'
 categories = ['Main Sections']
 tags = ['Cloudflare']
+mermaid = true
 +++
 
 引用文章: [Cloudflare Tunnel速度慢? 尝试给它加个前置代理提高速度](https://blog.xmgspace.me/archives/cloudflare-tunnel-via-proxy.html)
