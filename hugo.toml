@@ -1,0 +1,43 @@
+baseURL = 'http://127.0.0.1:1313/'
+title = 'tsctsc6 的博客'
+theme = 'reimu'
+timeZone = "Asia/Shanghai"
+languageCode = 'zh-CN'
+defaultContentLanguage = 'zh-CN'
+
+[languages]
+[languages.zh-CN]
+languageName = '简体中文'
+weight = 1
+hasCJKLanguage = true
+
+[markup.goldmark.extensions.passthrough]
+enable = true
+delimiters.block = [["\\[", "\\]"], ["$$", "$$"]]
+delimiters.inline = [["\\(", "\\)"], ["$", "$"]]
+
+[markup.highlight]
+guessSyntax = true
+noClasses = false
+
+[outputs]
+home = ["Algolia", "HTML", "RSS"]
+
+[outputFormats.Algolia]
+baseName = "algolia"
+isPlainText = true
+mediaType = "application/json"
+notAlternative = true
+
+[taxonomies]
+category = 'categories'
+tag = 'tags'
+
+[markup.goldmark.renderer]
+unsafe= true
+
+[markup.goldmark.renderHooks.image]
+enableDefault = true
+
+[markup.goldmark.renderHooks.link]
+enableDefault = true
