@@ -28,13 +28,22 @@ graph LR;
 
 ## Step1. 安装 Xray-core
 ```Shell {name="Linux Machine"}
-bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
+sudo bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
 ```
 
-众所周知，国内机器上安装Github上的软件是很痛苦的问题。如果实在连不上，就翻墙，手动安装 Xray-core 吧。
+众所周知，国内机器上安装Github上的软件是很痛苦的问题。如果实在连不上，就对 curl 使用代理：
 
-* 其实上面的代码是能执行第一步: 判断版本的，直接点击终端输出的链接，下载。或者访问 [https://github.com/XTLS/Xray-core](https://github.com/XTLS/Xray-core) ，下载对应的版本。
-* 解压，赋权 `sudo chmod +7 ./xray`
+```Shell {name="Linux Machine"}
+sudo bash -c "$(curl -x "http://ip:port" http -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
+```
+
+但是这还不够，因为这个脚本是会下载 Xray-core 的，会继续访问 github ，下不动了。于是我们可以访问 [https://github.com/XTLS/Xray-install](https://github.com/XTLS/Xray-install) ，查看它有什么命令。查看这个脚本的帮助：
+
+```Shell {name="Linux Machine"}
+sudo bash -c "$(curl -x "http://ip:port" http -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ help
+```
+
+发现可以使用代理 ( `-p 代理地址` ) 和从本地文件安装 (`-l Xray-core.zip`) 。
 
 ## Step2. 配置 Xray-core
 在 Xray-core 的文件夹中，新建 `config.json` ，填写以下内容:
