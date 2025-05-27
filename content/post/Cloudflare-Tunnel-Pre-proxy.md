@@ -46,7 +46,11 @@ sudo bash -c "$(curl -x "http://ip:port" http -L https://github.com/XTLS/Xray-in
 发现可以使用代理 ( `-p 代理地址` ) 和从本地文件安装 (`-l Xray-core.zip`) 。
 
 ## Step2. 配置 Xray-core
-在 Xray-core 的文件夹中，新建 `config.json` ，填写以下内容:
+Xray-core 默认被安装在 `/usr/local/bin/xray` 中。
+
+在 Linux 中，配置文件 `config.json` 通常位于 `/etc/xray/` 或 `/usr/local/etc/xray/` 目录下。
+
+打开 `config.json` ，填写以下内容:
 
 ```json {name="config.json"}
 {
@@ -76,7 +80,7 @@ sudo bash -c "$(curl -x "http://ip:port" http -L https://github.com/XTLS/Xray-in
 启动 xray:
 
 ```Shell {name="Linux Machine"}
-./xray -config ./config.json
+xray run -c /usr/local/etc/xray/config.json
 ```
 
 可以把 xray 包装为守护进程。
