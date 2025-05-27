@@ -90,6 +90,11 @@ sudo shutdown -h now
 sudo shutdown -h +5
 ```
 
+## 重启
+```shell
+sudo reboot
+```
+
 ## 查看系统资源使用情况
 总览
 
