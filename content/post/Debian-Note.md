@@ -29,10 +29,12 @@ sudo nano file.txt
 su -
 ```
 
+然后输入 **root 的密码**。
+
 查看文件:
 
 ```shell
-sudo nano visudo
+nano /etc/sudoers
 ```
 
 找到 `%sudo ALL=(ALL:ALL) ALL` 这行，在它的下一行我们输入一行文本:
