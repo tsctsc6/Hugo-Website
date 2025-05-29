@@ -3,6 +3,7 @@ date = '2025-05-20T16:36:43+08:00'
 draft = false
 title = '信息安全概论-消息摘要'
 categories = ['Sub Sections']
+mermaid = true
 +++
 消息摘要，又叫哈希，又叫散列。消息摘要算法有以下几个特点：
 
