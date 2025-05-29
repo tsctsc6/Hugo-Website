@@ -51,7 +51,7 @@ categories = ['Sub Sections']
 ## 对称加密算法
 以上讨论的加密算法有一个特点：加密和解密使用同一个密钥。这些算法称为对称加密(Symmetric Cryptography)算法。现代(2025年)的对称加密算法主要分为分组密码(Block Cipher)和流密码(Stream Cipher)。
 
-分组密码把明文分为若干块加密，若最后一块的明文的长度不够，则通过特殊的算法填充满一块。具体可查看这篇博客：[块加密的工作模式](https://www.ruanx.net/block-cipher-mode/)，于 git 仓库的发布内容中另存一份离线版。
+分组密码把明文分为若干块加密，若最后一块的明文的长度不够，则通过特殊的算法填充满一块。具体可查看这篇博客：[块加密的工作模式](https://www.ruanx.net/block-cipher-mode/)，另存一份[离线 pdf](references/Block-encryption-mode-of-operation.pdf)。
 
 流密码通过密钥生成一系列随机数。对于每一个明文的字节，取一个随机数与其异或。
 
