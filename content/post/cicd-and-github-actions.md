@@ -156,7 +156,7 @@ steps:
 | 平台 | 默认 Shell | 说明 |
 | :--: | :--: | :--: |
 | Windows | `pwsh` | PowerShell 7 |
-| 非 Windows 平台 | `pwsh` | 在非 Windows 平台上默认使用 shell ，并回退到 sh 。在 Windows 上指定 bash shell 时，将使用 Git for Windows 附带的 bash shell 。 |
+| 非 Windows 平台 | `bash` | 在非 Windows 平台上默认使用 shell ，并回退到 sh 。在 Windows 上指定 bash shell 时，将使用 Git for Windows 附带的 bash shell 。 |
 
 支持但需明确指定的非默认 Shell 如下：
 
