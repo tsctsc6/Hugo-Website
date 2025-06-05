@@ -173,4 +173,5 @@ steps:
 可以在 [Github Marketplace](https://github.com/marketplace?type=actions) 中搜索有哪些预定义 Action 可以使用，参数有哪些。
 
 ## 另请参阅
-大规模软件是如何开发的？(What does larger scale software development look like?)，[Bilibili 中文翻译](https://www.bilibili.com/video/BV1ZZjjzvEFD/)，[Youtube 英文原版](https://www.youtube.com/watch?v=Dl-BdxNRUqs)。
+1. 大规模软件是如何开发的？(What does larger scale software development look like?)，[Bilibili 中文翻译](https://www.bilibili.com/video/BV1ZZjjzvEFD/)，[Youtube 英文原版](https://www.youtube.com/watch?v=Dl-BdxNRUqs)。
+1. 和傻子一起写代码 [Bilibili](https://www.bilibili.com/video/BV1udEuzrEa7/)
