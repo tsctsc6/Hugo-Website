@@ -96,27 +96,24 @@ jobs:
     - name: Create win-x64 Release ZIP
       run: |
         New-Item -ItemType Directory -Path ".\release"
-        Compress-Archive -LiteralPath .\your-project-win-x64 -DestinationPath .\release\your-project-win-x64.zip
-
-    - name: Calculate win-x64 ZIP SHA256
-      id: sha256
-      run: |
-        Get-FileHash .\release\your-project-win-x64.zip  | Format-List > .\release\your-project-sha256.txt
+        Compress-Archive -LiteralPath .\your-project-win-x64 -DestinationPath .\release\your-project-win-x64-v${{ vars.RELEASE_VERSION }}.zip
     
-    - name: Create GitHub Release
-      id: create_release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: v1.0.0
-        name: v1.0.0
-        body_path: ./release/your-project-sha256.txt
-        draft: false
-        prerelease: false
-        fail_on_unmatched_files: true
-        files: |
-          ./release/your-project-win-x64.zip
+    - name: Create release
       env:
-        GITHUB_TOKEN: ${{ secrets.Workflow }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+      run: >
+        gh release create v${{ vars.RELEASE_VERSION }}
+        --repo ${{ github.event.repository.full_name }}
+        --title v${{ vars.RELEASE_VERSION }}
+        --notes-file ./changelog.md
+
+    - name: Upload release asset
+    env:
+      GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+    run: >
+      gh release upload v${{ vars.RELEASE_VERSION }}
+      your-project-v${{ vars.RELEASE_VERSION }}.zip
+      --repo ${{ github.event.repository.full_name }}
 ```
 
 ### 配置文件中的关键字说明
