@@ -321,3 +321,6 @@ npx tauri android build --help
 ```shell
 npx tauri android build --target aarch64
 ```
+
+# 自动化构建
+可以访问 [https://github.com/tsctsc6/sample-svelte](https://github.com/tsctsc6/sample-svelte) ，里面包含 Github Action 的构建代码。
