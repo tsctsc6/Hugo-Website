@@ -107,8 +107,8 @@ npx tauri android init
 
 否则会出现奇怪的问题。
 
-# 测试
-写完代码后，可以对不同的平台进行测试。
+# 调试
+写完代码后，可以对不同的平台进行调试。
 
 * web: `npm run dev`
 * 桌面端: `npm run tauri dev`
