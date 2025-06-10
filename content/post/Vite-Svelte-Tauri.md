@@ -123,10 +123,13 @@ systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
 
 对于安卓端，第一次运行要下载 gradle 和各种 maven 包，会非常非常慢。
 
-对于 gradle ，可以先下载对应版本的 gradle ，然后从本地安装。修改 ./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties 文件中的 distributionUrl 字段为本地路径：
+对于 gradle ，可以从镜像源安装；或者先下载对应版本的 gradle ，然后从本地安装。修改 ./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties 文件中的 distributionUrl 字段：
 
 ```txt {name="./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties"}
+# 本地安装
 distributionUrl=file:///C:/file/path/gradle-x.x.x-all.zip
+# 本地安装
+distributionUrl=https://mirrors.aliyun.com/macports/distfiles/gradle/gradle-x.x.x-all.zip
 ```
 
 对于 maven 包，可以使用镜像源，或者代理。在 ./src-tauri/gen/android/gradle.properties 文件中加入：
