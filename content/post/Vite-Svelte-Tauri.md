@@ -128,7 +128,7 @@ systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
 ```txt {name="./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties"}
 # 本地安装
 distributionUrl=file:///C:/file/path/gradle-x.x.x-all.zip
-# 本地安装
+# 镜像安装
 distributionUrl=https://mirrors.aliyun.com/macports/distfiles/gradle/gradle-x.x.x-all.zip
 ```
 
