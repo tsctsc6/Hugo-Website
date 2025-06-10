@@ -117,7 +117,7 @@ npx tauri android init
 # 构建
 在构建之前，先在 ./src-tauri/tauri.conf.json 中，进行如下配置：
 
-```json name{"./src-tauri/tauri.conf.json"}
+```json {name="./src-tauri/tauri.conf.json"}
 {
     "identifier": "com.xxx.xxx",
     ...
@@ -137,7 +137,7 @@ Tauri 支持两种 Windows 的构建方式， .msi 安装包（使用 Wix 打包
 
 在 ./src-tauri/tauri.conf.json 中，进行如下配置：
 
-```json name{"./src-tauri/tauri.conf.json"}
+```json {name="./src-tauri/tauri.conf.json"}
 {
     ...
     "bundle": {
