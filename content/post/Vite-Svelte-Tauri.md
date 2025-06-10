@@ -114,6 +114,38 @@ npx tauri android init
 * 桌面端: `npm run tauri dev`
 * 安卓端: `npm run tauri android dev` (请先连接虚拟安卓机或物理安卓机)
 
+对于安卓端，运行可能会出现“不信任证书”的错误，对此，要修改 ./src-tauri/gen/android/gradle.properties 文件，使用操作系统证书库：
+
+```txt {name="./src-tauri/gen/android/gradle.properties"}
+systemProp.javax.net.ssl.trustStores=
+systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
+```
+
+对于安卓端，第一次运行要下载 gradle 和各种 maven 包，会非常非常慢。
+
+对于 gradle ，可以先下载对应版本的 gradle ，然后从本地安装。修改 ./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties 文件中的 distributionUrl 字段为本地路径：
+
+```txt {name="./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties"}
+distributionUrl=file:///C:/file/path/gradle-x.x.x-all.zip
+```
+
+对于 maven 包，可以使用镜像源，或者代理。在 ./src-tauri/gen/android/gradle.properties 文件中加入：
+
+```txt {name="./src-tauri/gen/android/gradle.properties"}
+......
+# 使用镜像
+repositories.grails.default = https://mirrors.ustc.edu.cn/maven/
+repositories.grails.default.1 = https://mirrors.tuna.tsinghua.edu.cn/maven/repos/public
+repositories.grails.default.2 = https://maven.aliyun.com/repository/public
+# 使用代理
+systemProp.http.proxyHost=proxy.example.com
+systemProp.http.proxyPort=8080
+systemProp.https.proxyHost=proxy.example.com
+systemProp.https.proxyPort=8080
+systemProp.http.proxyUser=username
+systemProp.http.proxyPassword=password
+```
+
 # 构建
 在构建之前，先在 ./src-tauri/tauri.conf.json 中，进行如下配置：
 
