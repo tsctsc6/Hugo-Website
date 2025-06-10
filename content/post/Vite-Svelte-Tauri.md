@@ -110,10 +110,66 @@ npx tauri android init
 # 调试
 写完代码后，可以对不同的平台进行调试。
 
-* web: `npm run dev`
+* web 端: `npm run dev`
 * 桌面端: `npm run tauri dev`
 * 安卓端: `npm run tauri android dev` (请先连接虚拟安卓机或物理安卓机)
 
+## 桌面端调试与移动端调试的区别
+调试背后的运作原理是， Vite 先启动一个后端，前端从后端获取 HTML, CSS, JS ，然后渲染页面。对于 web 端，前端就是浏览器；对于桌面端，前端就是一个进程；对于安卓端，前端就是运行在安卓操作系统上的应用。在构建生产环境的应用程序时，会把相关的 HTML, CSS, JS 打包进应用程序安装包中。在生产环境中，无需启动后端。
+
+我们观察 ./src-tauri/tauri.conf.json ：
+
+```json {name="./src-tauri/tauri.conf.json"}
+{
+    "build": {
+        "devUrl": "http://localhost:5173"
+    },
+    ......
+}
+```
+
+发现它设置了访问后端的 url 。
+
+然而，在进行安卓端的调试时，观察命令行输出，发现它在访问 http://192.168.55.26:5173 。这是因为安卓的虚拟机或者物理机无法访问 localhost ——因为已经是不同的机器了，所以要通过局域网地址访问后端。那么如何在运行桌面端的时候，后端监听 loaclhost ，运行移动端的时候，后端监听局域网呢？
+
+后端是由 Vite 构建的，启动的代码在 ./vite.config.ts 中（这里使用 TypeScript 项目）。
+
+tauri 在启动时，会设置一系列环境变量，其中就有 `TAURI_ENV_PLATFORM` ，表明当前运行的平台。通过这个环境变量，判断当前是否是移动平台，监听对应的 ip 地址。
+
+我们通过 .env.local 文件设置局域网 ip ，避免把局域网 ip 暴露到公共代码库中。 .env.local 存储一系列键值对，在启动程序是加载，模拟环境变量，是一种灵活的机密管理方式。
+
+修改 ./vite.config.ts 文件如下：
+
+```TypeScript {name="./vite.config.ts"}
+import {defineConfig, loadEnv} from 'vite'
+import {svelte} from '@sveltejs/vite-plugin-svelte'
+
+// https://vite.dev/config/
+// @ts-ignore
+export default defineConfig(({mode}) => {
+  console.log('TAURI_ENV_PLATFORM:', process.env.TAURI_ENV_PLATFORM);
+  const envFile = loadEnv(mode, process.cwd(), '');
+  let host = 'localhost';
+  if (process.env.TAURI_ENV_PLATFORM === undefined ||
+      process.env.TAURI_ENV_PLATFORM === 'windows' ||
+      process.env.TAURI_ENV_PLATFORM === 'linux' ||
+      process.env.TAURI_ENV_PLATFORM === 'macOS') {}
+  else{
+    host = envFile.VITE_Mobile_HOST;
+  }
+  return {
+    plugins: [svelte()],
+    server: {
+      host: host,
+      port: envFile.VITE_PORT,
+      strictPort: true
+    }
+  };
+});
+
+```
+
+## 安卓端可能出现的问题
 对于安卓端，运行可能会出现“不信任证书”的错误，对此，要修改 ./src-tauri/gen/android/gradle.properties 文件，使用操作系统证书库：
 
 ```txt {name="./src-tauri/gen/android/gradle.properties"}
