@@ -122,6 +122,34 @@ MVD 有一个重要的性质：互补律（Complementation Rule）：如果 $X \
 
 如果 $X \to Y$ ，则 $X \twoheadrightarrow Y$ 。函数依赖是多值依赖的特例。
 
+# 函数依赖的计算
+## ​​阿姆斯特朗公理
+阿姆斯特朗公理(Armstrong's Axioms)是一组​​推理规则(Inference Rules)。它们提供了一种​​形式化的方法​​，用于从一个给定的函数依赖集 $F$ 出发，​​推导出​​所有在逻辑上蕴含于 $F$ 的其他函数依赖。
+
+阿姆斯特朗公理的三条基本公理如下：
+
+1. 自反律 (Reflexivity Rule / Inclusion Rule)
+    * 如果 $Y \subseteq X$ ，则 $X \to Y$ 。
+    * 比如：(学号, 姓名) $\to$ 学号 。
+1. 增广律 (Augmentation Rule)
+    * 如果 $X \to Y$ ，那么对于​​任意​​属性集 $Z$ ， $X \cup Z \to Y \cup Z$
+    * 比如：已知 学号 $\to$ 姓名 ，那么(学号, 学院) $\to$ (姓名, 学院) 成立。
+1. 传递律 (Transitivity Rule)
+    * 如果 $X \to Y$ ，且 $Y \to Z$ ，那么 $X \to Z$ 成立。
+    * 比如：已知 学号 $\to$ 系别，且 系别 $\to$ 系主任，那么 学号 $\to$ 系主任 成立。
+
+由以上三条公理，可以推导出几个规则：
+
+1. ​​合并律 (Union Rule)
+    * 如果 $X \to Y$ 且 $X \to Z$ ，那么 $X \to Y \cup Z$ 。
+    * 比如：已知 学号 $\to$ 姓名，且 学号 $\to$ 系别 ，那么 学号 $\to$ (姓名, 系别) 。
+1. 分解律 (Decomposition Rule)
+    * 如果 $X \to Y \cup Z$ ，那么 $X \to Y$ 且 $X \to Z$ 。
+    * 比如：已知 学号 $\to$ (姓名, 系别)，那么学号 $\to$ 姓名 ，且 学号 $\to$ 系别。
+1. 伪传递律 (Pseudo-transitivity Rule)
+    * 如果 $X \to Y$ 且 $W \cup Y \to Z$ ，那么 $W \cup X \to Z$ 。
+    * 比如：已知 课程号 $\to$ 教师ID 且 (教师ID, 学期) $\to$ 上课地点，那么 (课程号, 学期) $\to$ 上课地点。
+
 # 范式
 首先先介绍几个概念：
 
