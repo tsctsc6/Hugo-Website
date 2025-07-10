@@ -35,3 +35,6 @@ https://cloudflare-dns.com/dns-query
 
 https://dns.quad9.net/dns-query
 ```
+
+## 使用体验
+感觉 google 的 DNS 对国内 ipv6 的支持不太好，访问国内部分网站时，返回错误的 ip 地址。
