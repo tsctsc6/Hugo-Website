@@ -132,13 +132,9 @@ sudo nano /etc/hosts
 104.17.18.19 <你的团队名称_需自己修改>.cloudflareaccess.com
 ```
 
-至于 Cloudflared 的配置文件 `config.yml` ， ChatGPT 说位于 `/etc/cloudflared/` ，我并没有找到。而且强行在此位置新建配置文件，填写:
+至于 Cloudflared 的配置文件 `config.yml` ， ChatGPT 说位于 `/etc/cloudflared/` ，我并没有找到。
 
-```
-protocol: http2
-```
-
-网速反而变慢。
+后来看到一篇博客：[Cloudflared Tunnel 隧道开启 HTTP2 和 IPv6 支持](https://blog.lufei.de/p/394/)，请参照该文章开启。
 
 ## Step5. 验收
 重启cloudflared，查看效果:
