@@ -200,7 +200,7 @@ font:
   enable: true
   article:
     # - Mulish
-    - Noto Serif SC
+    - Noto Sans SC
   code:
     # - Ubuntu Mono
     # - Source Code Pro
