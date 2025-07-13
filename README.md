@@ -8,6 +8,8 @@ git submodule update --remote
 cd themes/reimu
 git fetch
 cd ../..
+git commit -m "Update reimu"
+git push
 ```
 如果 reimu 的 params.yml 有重大更新，可以这样做：
 
