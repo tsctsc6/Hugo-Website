@@ -7,5 +7,11 @@
 git submodule update --remote
 cd themes/reimu
 git fetch
-cd ..
+cd ../..
 ```
+如果 reimu 的 params.yml 有重大更新，可以这样做：
+
+1. 使用 CSCode ，打开 themes/reimu/config/_default/params.yml
+1. 打开命令面板（Ctrl + Shift + P），选择“文件: 比较活动文件与...”("File: Compare Active File With...")
+1. 选择 params.yml
+1. 这是界面分为两半，在两文件不同的地方，两边界面的中间，有个箭头“还原块”，可以快速地把想同步的内容同步。
