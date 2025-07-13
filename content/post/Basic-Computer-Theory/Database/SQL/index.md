@@ -21,7 +21,7 @@ SQL 有以下特点：
 | 数据操作语句 | Data Manipulation Language | DML |​ 操作数据库表中的数据行。 | `INSERT` `UPDATE` `DELETE` |
 | 数据查询语句 | Data Manipulation Language | DQL |​ 查询数据库表中的数据行。 | `SELECT` |
 | ​​数据控制语句 | Data Control Language | DCL |​ 控制对数据和数据库的访问权限。 | `GRANT` `REVOKE` |
-| ​​事务控制语句 | Transaction Control Language | TCL |​ 管理数据库事务。 | `CREATE` `ALTER` `DROP` `TRUNCATE` |
+| ​​事务控制语句 | Transaction Control Language | TCL |​ 管理数据库事务。 | `COMMIT` `ROLLBACK` `SAVEPOINT` |
 
 有些人把 DQL 合并到 DML 中，但是由于 `SELECT` 语句太过复杂，而且是只读的操作，故也有人将其单独分为一类。
 
