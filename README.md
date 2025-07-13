@@ -8,6 +8,7 @@ git submodule update --remote
 cd themes/reimu
 git fetch
 cd ../..
+git add *
 git commit -m "Update reimu"
 git push
 ```
