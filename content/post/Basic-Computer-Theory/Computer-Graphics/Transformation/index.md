@@ -79,6 +79,10 @@ $$ \textbf{R}(\vec{n}, \theta) = \cos{\theta}\textbf{I} + (1 - \cos{\theta}) \ve
 其中， $\vec{n}$ 是旋转轴单位向量； $\textbf{N}$ 是向量 $\vec{n}$ 的反对称矩阵。
 
 ### 使用四元数表示一般旋转
+了解旋转与万向锁：
+
+[【【深度解读】引发“万向锁”的罪魁祸首？我在北极点找到了答案！——虚幻引擎UE免费教程】](https://www.bilibili.com/video/BV1nKKzz5EU7/)
+
 请先看 3Blue1Brown 的视频
 
 [【四元数的可视化】](https://www.bilibili.com/video/BV1SW411y7W1/)
