@@ -170,3 +170,32 @@ WHERE amount > 1000;                -- 只包含金额>1000的记录
 SELECT * FROM expensive_orders;     -- 像查表一样查询视图
 ```
 
+## 对查询结果分页
+对于标准的 SQL 语法来说，可以这么分页：
+
+```SQL
+SELECT employee_id, name
+FROM employees
+ORDER BY hire_date
+OFFSET 5 ROWS               -- 跳过前 5 条
+FETCH FIRST 10 ROWS ONLY;   -- 取接下来的 10 条
+```
+
+对于 SQL Server 来说，可以这么分页：
+
+```SQL
+SELECT employee_id, name
+FROM employees
+ORDER BY hire_date
+OFFSET 5 ROWS
+FETCH NEXT 10 ROWS ONLY;  -- 跳过前 5 条，取接下来的 10 条
+```
+
+对于 MySQL 来说，可以这么分页：
+
+```SQL
+SELECT employee_id, name
+FROM employees
+ORDER BY hire_date
+LIMIT 5, 10              -- 跳过前 5 条，取接下来的 10 条
+```
