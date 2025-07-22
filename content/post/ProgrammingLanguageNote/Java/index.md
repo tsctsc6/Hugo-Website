@@ -63,3 +63,59 @@ IDEA 自带 Meven ，位于 `{IDEA 安装目录}\plugins\maven\lib\maven3\` 中�
 
 ### Maven 结构介绍
 项目根目录的 `pom.xml` 文件是 Maven 项目核心配置文件，里面包含了项目名称、项目版本、项目依赖项等信息。
+
+## 部署
+JDK 会把 Java 代码编译为字节码，一个 `.java` 文件编译为一个 `.class` 文件。可以把整个项目打包为 `jar` 格式， `jar` 其实是一个压缩包，里面包含了一些 `.class` 文件以及其他配置文件。 `jar` 又分为包含依赖库的和不包含依赖库的。下面介绍包含依赖库的打包方式。
+
+首先在 `pom.xml` 中加入:
+
+```XML {name="pom.xml"}
+<project>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <!-- 指定主类 -->
+                    <archive>
+                        <manifest>
+                            <mainClass>org.example.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <!-- 打包所有依赖 -->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase> <!-- 绑定到package阶段 -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+执行构建:
+
+```shell
+mvn clean package
+```
+
+> 如果使用 IDEA ，可以在右上角，新建配置 -> 新建配置 -> Maven , 设置命令为 `clean package` .
+
+在项目根目录下的 `target` 目录下生成 `your-project-1.0-SNAPSHOT-jar-with-dependencies.jar` （包含所有依赖）。
+
+运行:
+
+```shell
+java -jar ./target/your-project-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
