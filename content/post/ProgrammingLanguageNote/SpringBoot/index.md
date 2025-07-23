@@ -95,3 +95,24 @@ spring:
 ```
 
 至此，一个空白的 Spring Boot 项目已经创建。
+
+## 部署
+确保已经做了[添加 Maven 插件](#添加-maven-插件)步骤。
+
+执行构建:
+
+```shell
+mvn clean package
+```
+
+> 如果使用 IDEA ，可以在右上角，新建配置 -> 新建配置 -> Maven , 设置命令为 `clean package` .
+
+在项目根目录下的 `target` 目录下生成 `your-project-1.0-SNAPSHOT-jar-with-dependencies.jar` （包含所有依赖）。
+
+运行:
+
+```shell
+java -jar ./target/your-project-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+可以在 `jar` 包的目录中，创建配置文件 `application.yml` 。
