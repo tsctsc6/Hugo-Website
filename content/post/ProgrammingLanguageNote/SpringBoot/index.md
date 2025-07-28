@@ -116,3 +116,241 @@ java -jar ./target/your-project-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 可以在 `jar` 包的目录中，创建配置文件 `application.yml` 。
+
+## SpringBoot 项目的一般结构
+在 Spring Boot 应用中，标准的 MVC（Model-View-Controller）架构是推荐的分层结构，以下是典型的分层架构及其职责：
+
+```txt
+src/main/java
+└── org.example
+    ├── Application.java              // 主启动类
+    │
+    ├── controller                    // 控制层 (处理HTTP请求)
+    │   └── UserController.java
+    │
+    ├── service                       // 服务层 (业务逻辑)
+    │   ├── UserService.java          // 接口
+    │   └── impl
+    │       └── UserServiceImpl.java  // 实现类
+    │
+    ├── repository                    // 数据访问层 (访问数据库)
+    │   └── UserRepository.java
+    │
+    ├── model                         // 实体/模型层
+    │   ├── entity
+    │   │   └── UserEntity.java       // 数据库实体
+    │   └── dto
+    │       ├── UserRequest.java      // 请求DTO
+    │       └── UserResponse.java     // 响应DTO
+    │
+    ├── config                        // 配置层
+    │   └── SwaggerConfig.java
+    │
+    └── exception                     // 异常处理
+        └── GlobalExceptionHandler.java
+```
+
+### Controller 层 (控制器层)
+职责​​：
+
+* 接收 HTTP 请求
+* 参数校验
+* 调用 Service 层处理业务逻辑
+* 返回 HTTP 响应
+
+示例代码​​：
+
+```java
+@RestController
+@RequestMapping("/api/users")
+public class UserController
+{
+    private final UserService userService;
+
+    // 构造函数注入 Service
+    public UserController(UserService userService)
+    {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request)
+    {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long id)
+    {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+}
+```
+
+### Service 层 (服务层)
+职责​​：
+
+* 封装业务逻辑
+* 处理事务管理
+* 协调多个 Repository 操作
+
+示例代码​​：
+
+```java
+public interface UserService
+{
+    UserResponse createUser(UserRequest request);
+    UserResponse getUserById(Long id);
+}
+
+@Service
+public class UserServiceImpl implements UserService
+{
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper)
+    {
+        this.userRepository = userRepository;
+        this.modelMapper = modelMapper;
+    }
+
+    @Override
+    @Transactional
+    public UserResponse createUser(UserRequest request)
+    {
+        UserEntity user = modelMapper.map(request, UserEntity.class);
+        userRepository.save(user);
+        return modelMapper.map(user, UserResponse.class);
+    }
+
+    @Override
+    public UserResponse getUserById(Long id)
+    {
+        UserEntity user = userRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return modelMapper.map(user, UserResponse.class);
+    }
+}
+```
+
+### Repository 层 (数据访问层)
+职责​​：
+
+* 数据库操作接口
+* 封装数据访问逻辑
+* 提供 CRUD 操作
+
+示例代码​​：
+
+```java
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class UserRepository
+{
+    private final JdbcTemplate jdbcTemplate;
+
+    public UserRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
+    // 创建用户
+    public int createUser(String username, String email)
+    {
+        String sql = "INSERT INTO users (username, email) VALUES (?, ?)";
+        return jdbcTemplate.update(sql, username, email);
+    }
+
+    // 根据ID查询用户
+    public User findUserById(int id)
+    {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
+            new User(
+                rs.getInt("id"),
+                rs.getString("username"),
+                rs.getString("email")
+            )
+        );
+    }
+
+    // 获取所有用户
+    public List<User> findAllUsers()
+    {
+        String sql = "SELECT * FROM users";
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+            new User(
+                rs.getInt("id"),
+                rs.getString("username"),
+                rs.getString("email")
+            )
+        );
+    }
+}
+```
+
+> 以上代码需要 Spring Boot JDBC 依赖：
+> ```
+>     <dependency>
+>         <groupId>org.springframework.boot</groupId>
+>         <artifactId>spring-boot-starter-jdbc</artifactId>
+>         <version>3.2.4</version> <!-- 使用与您的 Spring Boot 匹配的版本 -->
+>     </dependency>
+> ```
+
+### Model 层 (模型层)
+职责​​：
+
+* 定义实体类型
+
+示例代码​​：
+
+```java
+@Entity
+@Table(name = "users")
+public class UserEntity
+{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @Column(nullable = false)
+    private String name;
+    
+    @Column(unique = true, nullable = false)
+    private String email;
+    
+    // Getters/Setters
+    ...
+}
+```
+
+### 全局异常处理
+示例代码​​：
+
+```java
+@ControllerAdvice
+public class GlobalExceptionHandler
+{
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<?> handleNotFound(ResourceNotFoundException ex)
+    {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
+    
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex)
+    {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach(error -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return ResponseEntity.badRequest().body(errors);
+    }
+}
+```
