@@ -3,6 +3,7 @@ date = '2025-07-22T18:56:11+08:00'
 draft = false
 title = 'SpringBoot 架构介绍'
 categories = ['Sub Sections']
+tags = ['Java', 'Web', 'MVC']
 +++
 
 SpringBoot 是基于 Java 的，但是为了解决传统 Java（尤其 Java EE/Jakarta EE）在企业级应用开发、部署和运维中长期存在的一系列痛点和复杂性，打破了许多 java 的传统。故需要单独一篇文章。
