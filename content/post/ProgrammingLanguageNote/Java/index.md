@@ -3,6 +3,7 @@ date = '2025-07-22T15:58:51+08:00'
 draft = false
 title = 'Java 语言架构介绍'
 categories = ['Sub Sections']
+tags = ['Java']
 +++
 
 ## 编译器
