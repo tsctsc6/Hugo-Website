@@ -90,3 +90,6 @@ Authorization: Bearer eyJxxx.eyJxxx.ZZjiNma0o8gDSiVvVkkLcyA9VWF4FmxGrj5F8JxBoC0
 验证数字签名即可。
 
 有人说 JWT 不能从服务器主动吊销，其实办法还是有的。可以添加 `SecurityStamp` 字段，格式为 UUID ，或者别的什么。用户表里也设有 `SecurityStamp` 字段。每次验证时，也对比一下 `SecurityStamp` 。服务端想主动吊销 JWT 时，更改 `SecurityStamp` 即可。
+
+## See Also
+[定制 ASP.NET Identity](../../../Custom-Aspnet-Identity.md)
