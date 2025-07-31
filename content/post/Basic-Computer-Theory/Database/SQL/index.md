@@ -64,7 +64,7 @@ VALUES (new_order.id, CURRENT_TIMESTAMP);  -- 值：订单 ID + 当前时间戳
 功能：
 
 * 存储过程：​​用 `CREATE PROCEDURE` 定义，支持参数输入/输出，无返回值。
-​* ​函数：​​用 `CREATE FUNCTION` 定义，必须返回一个标量值或表。
+* ​函数：​​用 `CREATE FUNCTION` 定义，必须返回一个标量值或表。
 * 支持变量、条件分支（ `IF` `CASE` ）、循环（ `LOOP` `WHILE` ）、异常处理。
 * 存储过程和函数是预编译的，执行速度比 SQL 语句快。
 
