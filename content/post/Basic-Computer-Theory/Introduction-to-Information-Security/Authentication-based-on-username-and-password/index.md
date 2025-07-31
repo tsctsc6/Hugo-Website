@@ -44,7 +44,7 @@ math = true
 * 随机盐（ $S$ ）
 * 迭代次数（ $c$ ）
 * 输出密钥长度（ $dkLen$ ）
-* 底层伪随机函数 $PRF$ （通常为 HMAC 与某种哈希算法的组合）
+* 底层伪随机函数 $PRF$ （通常为 [HMAC 算法](../HMAC-algorithm/index.md)与某种哈希算法的组合）
 
 算法：
 
@@ -60,26 +60,6 @@ $$
 > * $\mid\mid$ : 拼接
 
 最终结果是拼接 $T_i$ , $T_1 \mid\mid T_2 \mid\mid \cdots$ ，截取前 $dkLen$ 字节，得到最终派生密钥 $DK$ 。
-
-### HMAC
-HMAC（Hash-based Message Authentication Code） 是一种基于哈希函数的加密验证机制，它将一个密钥与数据组合后，用指定的哈希函数（如 SHA-256）来生成消息认证码（MAC）。其设计初衷是防止数据被篡改。
-
-> HMAC 不是一个哈希算法，而是一个用哈希函数构建的算法结构。
-
-HMAC 的计算公式如下：
-
-$$
-HMAC(K, m) = H((K' \oplus opad) \mid\mid H((K' \oplus ipad) \mid\mid m))
-$$
-
-> * $H$ : 你选择的哈希函数（如 SHA-1, SHA-256, SHA-512 等）；
-> * $K$ : 原始密钥（比如口令）；
-> * $K'$ : 调整为哈希块大小（不足补零，超出则先哈希）；
-> * $m$ : 输入消息；
-> * $opad$ : 外部填充字节（全是 0x5c）；
-> * $ipad$ : 内部填充字节（全是 0x36）；
-> * $\mid\mid$ : 表示字节串拼接；
-> * $\oplus$ : 按位异或。
 
 ## Bcrypt and Argon2
 但可惜的是，道高一尺，魔高一丈。 PBKDF2 算法虽然提高了黑客暴力破解密码的难度，但是仍然有一些问题。比如，黑客可以使用 GPU 或 FPGA 来加速计算，从而提高暴力破解的速度。所以，我们还有更加重量级的选手: BCrypt 及 Argon2。
