@@ -117,6 +117,20 @@ erDiagram
 | string | UserId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
 | string | RoleId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
 
-## 为 ASP.NET Web API 配置 ASP.NET Identity
-目前， ASP.NET Identity 只有在 Blazor Web App, Razor Pages, MVC 应用中有模板。如果我们需要为 ASP.NET Web API 配置 ASP.NET Identity ，只能自己动手了。
+## 为 ASP\.NET Web API 配置 ASP\.NET Identity + JWT
+目前， ASP\.NET Identity 只有在 Blazor Web App, Razor Pages, MVC 应用中有模板。如果我们需要为 ASP\.NET Web API 配置 ASP\.NET Identity ，只能自己动手了。
 
+创建一个 ASP\.NET Web API 项目，不要选择任何身份验证方式。
+
+安装 NuGet 包：
+
+```shell
+dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+dotnet add package System.IdentityModel.Tokens.Jwt
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+```
+
+还有你喜欢的 Entity Framework Core 数据库驱动。
+
+### 项目结构
