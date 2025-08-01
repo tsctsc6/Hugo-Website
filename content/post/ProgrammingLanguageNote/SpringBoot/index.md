@@ -330,7 +330,7 @@ public class UserEntity
 ```
 
 ### DTO
-DTO 是 Data Transfer Object (数据传输对象)的缩写。DTO用于在不同层之间传输数据，比如 Controller 方法的入参、 Controller 方法的返回值、 Service 方法的的入参、 Service 方法的的返回值等等。
+DTO 是 Data Transfer Object (数据传输对象)的缩写。DTO用于在不同层之间传输数据，比如 Controller 方法的入参、 Controller 方法的返回值、 Service 方法的的入参、 Service 方法的的返回值等等。对于 Controller 方法的入参和返回值，会把对象序列化为 json 或把 json 反序列化为对象，在 HTTP 中传递。
 
 ### 全局异常处理
 示例代码​​：
