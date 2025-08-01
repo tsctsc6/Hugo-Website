@@ -3,6 +3,7 @@ date = '2025-07-31T21:46:41+08:00'
 draft = false
 title = 'HMAC 算法'
 categories = ['Sub Sections']
+math = true
 +++
 
 HMAC（Hash-based Message Authentication Code） 是一种基于哈希函数的加密验证机制，它将一个密钥与数据组合后，用指定的哈希函数（如 SHA-256）来生成消息认证码（MAC）。其设计初衷是防止数据被篡改。
