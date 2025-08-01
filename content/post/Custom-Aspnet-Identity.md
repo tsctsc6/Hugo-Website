@@ -52,6 +52,24 @@ erDiagram
 | boolean | LockoutEnabled |  |  | &#10004; |  |
 | integer | AccessFailedCount |  |  | &#10004; |  |
 
+#### PasswordHash 字段
+具体作用，请查看"[根据用户名和口令进行身份验证-加盐](./Basic-Computer-Theory/Introduction-to-Information-Security/Authentication-based-on-username-and-password/index.md#加盐)"，这里把口令的哈希值和盐值存储在同一字段中。
+
+#### SecurityStamp 字段
+当用户的关键安全信息发生变化​​（如更改密码、锁定用户等），此值​​会被更新，以吊销凭证，使该用户在​​其他所有设备或浏览器​​上的现有会话失效。
+
+在基于令牌认证（[JWT](./Basic-Computer-Theory/Introduction-to-Information-Security/Session-state-management/index.md#jwt)）的场景中， SecurityStamp 可以映射到 JWT 的 jti (JWT ID) 声明，并在令牌验证时检查有效性。更新 SecurityStamp 等价于撤销之前颁发的所有 JWT 。
+
+#### ConcurrencyStamp 字段
+用于实现​​数据库层面的乐观并发控制 (Optimistic Concurrency)​​。
+
+乐观并发是指，允许多个进程或用户尝试同时更新同一条用户记录，而不锁定记录。它假设冲突不常发生。
+
+记录在读取时会获取当前的 ConcurrencyStamp 值。当尝试更新记录时， ED Core (或底层的存储提供程序) 会将传入记录的 ConcurrencyStamp 值​​与数据库中当前该记录的 ConcurrencyStamp 值进行比较​​。
+
+* 如果值​​匹配​​：说明记录自上次读取后​​没有被其他操作修改过​​，更新允许进行，并在更新​​后会自动生成一个新的 ConcurrencyStamp​​（通常是新的 GUID）存入数据库。
+* 如果值​​不匹配​​：说明记录自上次读取后​​已经被其他操作修改过​​（例如，管理员同时在后台修改了该用户）。此时 EF Core 会抛出 DbUpdateConcurrencyException 异常，开发者需要捕获此异常并决定如何处理冲突（如提示用户、重试操作、合并变更等）。
+
 ### AspNetRoles 表
 | Type | Name | PK | FK | NN | Remark |
 | :--: | :--: | :--: | :--: | :--: | :--: |
