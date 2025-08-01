@@ -175,13 +175,13 @@ public class UserController
     }
 
     @PostMapping
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request)
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserRequestDto request)
     {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable Long id)
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable Long id)
     {
         return ResponseEntity.ok(userService.getUserById(id));
     }
@@ -219,11 +219,11 @@ public class UserServiceImpl implements UserService
 
     @Override
     @Transactional
-    public UserResponse createUser(UserRequest request)
+    public UserResponseDto createUser(UserRequestDto requestDto)
     {
-        UserEntity user = modelMapper.map(request, UserEntity.class);
+        UserEntity user = modelMapper.map(requestDto, UserEntity.class);
         userRepository.save(user);
-        return modelMapper.map(user, UserResponse.class);
+        return modelMapper.map(user, UserResponseDto.class);
     }
 
     @Override
@@ -328,6 +328,9 @@ public class UserEntity
     ...
 }
 ```
+
+### DTO
+DTO 是 Data Transfer Object (数据传输对象)的缩写。DTO用于在不同层之间传输数据，比如 Controller 方法的入参、 Controller 方法的返回值、 Service 方法的的入参、 Service 方法的的返回值等等。
 
 ### 全局异常处理
 示例代码​​：
