@@ -1,7 +1,7 @@
 +++
 date = '2025-07-31T19:45:58+08:00'
 draft = false
-title = '定制 ASP.NET Identity'
+title = '在 ASP.NET Web API 中使用 ASP.NET Identity'
 categories = ['Main Sections']
 mermaid = true
 +++
@@ -127,10 +127,118 @@ erDiagram
 ```shell
 dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
 dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
-dotnet add package System.IdentityModel.Tokens.Jwt
 dotnet add package Microsoft.EntityFrameworkCore.Tools
 ```
 
 还有你喜欢的 Entity Framework Core 数据库驱动。
 
 ### 项目结构
+项目使用 MVC 架构（Web API 没有 View），即分为 Controller 层、 Service 层(本例集成在 Controller 层)、 Repository 层(本例使用 EF Core  代替)、 Model 层。具体可以看 [SpringBoot 架构介绍](./ProgrammingLanguageNote/SpringBoot/index.md)。
+
+### 定义实体和数据库上下文
+```CSharp {name="Models/ApplicationUser.cs"}
+using Microsoft.AspNetCore.Identity;
+
+public class ApplicationUser : IdentityUser
+{
+    // 如有需要可添加更多属性
+    // public DateOnly Birthday { get; set; }
+}
+```
+
+```CSharp {name="Data/ApplicationDbContext.cs"}
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
+{
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options) { }
+
+    // 如有其它 DbSet<...> 可在此添加
+}
+```
+
+### 配置
+在 `var app = builder.Build();` 之前，添加：
+
+```CSharp {name="Program.cs"}
+// 1) 添加 DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
+
+// 2) 添加 Identity
+builder.Services
+    .AddIdentity<ApplicationUser, IdentityRole>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        // 其它密码/锁定/用户设置...
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+// 3) 添加 JWT 认证
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var keyBytes = Encoding.UTF8.GetBytes(jwtKey);
+builder.Services
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuratio["Jwt:Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+// 4) 添加授权（如果需要角色策略等）
+builder.Services.AddAuthorization();
+
+// 5) 添加控制器
+builder.Services.AddControllers();
+```
+
+在 `var app = builder.Build();` 之后，添加：
+
+```CSharp {name="Program.cs"}
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+
+app.Run();
+```
+
+在 appsettings.json 或 appsettings.Development.json 中配置好连接字符串和 JWT ：
+
+```json {name="appsettings.json"}
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=.;Database=MyApiDb;Trusted_Connection=True;"
+  },
+  "Jwt": {
+    "Key": "至少32字符的随机密钥串",
+    "Issuer": "MyApi",
+    "Audience": "MyApiClient"
+  }
+}
+```
+
+### 生成数据库迁移并更新
+```shell
+dotnet ef migrations add InitIdentity
+dotnet ef database update
+```
+
