@@ -41,16 +41,16 @@ erDiagram
 | string | NormalizedUserName |  |  |  | UserName 字段的全大写形式 |
 | string | Email |  |  |  |  |
 | string | NormalizedEmail |  |  |  | Email 字段的全大写形式 |
-| boolean | EmailConfirmed |  |  | &#10004; |  |
+| boolean | EmailConfirmed |  |  | &#10004; | 邮箱是否有效（比如通过邮箱验证码认证） |
 | string | PasswordHash |  |  |  |  |
 | string | SecurityStamp |  |  |  | 格式为 UUID |
 | string | ConcurrencyStamp |  |  |  | 格式为 UUID |
 | string | PhoneNumber |  |  |  |  |
 | boolean | PhoneNumberConfirmed |  |  | &#10004; |  |
 | boolean | TwoFactorEnabled |  |  | &#10004; |  |
-| timestamp | LockoutEnd |  |  |  |  |
+| timestamp | LockoutEnd |  |  |  | 账户​​锁定的结束时间 |
 | boolean | LockoutEnabled |  |  | &#10004; |  |
-| integer | AccessFailedCount |  |  | &#10004; |  |
+| integer | AccessFailedCount |  |  | &#10004; | 记录用户​​连续登录失败的次数​​，成功的登录会重置该计数器为 0 |
 
 #### PasswordHash 字段
 具体作用，请查看"[根据用户名和口令进行身份验证-加盐](./Basic-Computer-Theory/Introduction-to-Information-Security/Authentication-based-on-username-and-password/index.md#加盐)"，这里把口令的哈希值和盐值存储在同一字段中。
@@ -116,3 +116,7 @@ erDiagram
 | :--: | :--: | :--: | :--: | :--: | :--: |
 | string | UserId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
 | string | RoleId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
+
+## 为 ASP.NET Web API 配置 ASP.NET Identity
+目前， ASP.NET Identity 只有在 Blazor Web App, Razor Pages, MVC 应用中有模板。如果我们需要为 ASP.NET Web API 配置 ASP.NET Identity ，只能自己动手了。
+
