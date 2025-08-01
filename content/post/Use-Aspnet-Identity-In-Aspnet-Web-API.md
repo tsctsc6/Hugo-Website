@@ -242,3 +242,124 @@ dotnet ef migrations add InitIdentity
 dotnet ef database update
 ```
 
+### 编写注册和登录 API
+定义 DTO:
+
+```CSharp {name="DTOs/RegisterDto.cs"}
+public class RegisterDto
+{
+    public string UserName { get; set; } = "";
+    public string Email    { get; set; } = "";
+    public string Password { get; set; } = "";
+}
+```
+
+```CSharp {name="DTOs/LoginDto.cs"}
+public class LoginDto
+{
+    public string UserName { get; set; } = "";
+    public string Password { get; set; } = "";
+}
+```
+
+编写 Controller:
+
+```CSharp {name="Controllers/AuthController.cs"}
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using TestJWT.DTOs;
+using TestJWT.Models;
+
+namespace TestJWT.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class AuthController : ControllerBase
+{
+    private readonly UserManager<ApplicationUser> _userMgr;
+    private readonly SignInManager<ApplicationUser> _signInMgr;
+    private readonly IConfiguration _config;
+
+    public AuthController(
+        UserManager<ApplicationUser> userMgr,
+        SignInManager<ApplicationUser> signInMgr,
+        IConfiguration config
+    )
+    {
+        _userMgr = userMgr;
+        _signInMgr = signInMgr;
+        _config = config;
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterDto dto)
+    {
+        var user = new ApplicationUser { UserName = dto.UserName, Email = dto.Email };
+        var result = await _userMgr.CreateAsync(user, dto.Password);
+        if (!result.Succeeded)
+            return BadRequest(result.Errors);
+
+        // （可选）给用户分配默认角色
+        // await _userMgr.AddToRoleAsync(user, "User");
+
+        return Ok(new { Message = "注册成功" });
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto dto)
+    {
+        var user = await _userMgr.FindByNameAsync(dto.UserName);
+        if (user == null)
+            return Unauthorized("用户名不存在");
+
+        var signInRes = await _signInMgr.CheckPasswordSignInAsync(user, dto.Password, false);
+        if (!signInRes.Succeeded)
+            return Unauthorized("密码错误");
+        
+        // 生成 JWT
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Id),
+            new(JwtRegisteredClaimNames.UniqueName, user.UserName)
+        };
+        // 加入角色声明
+        var roles = await _userMgr.GetRolesAsync(user);
+        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
+        var creds  = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var token  = new JwtSecurityToken(
+            issuer: _config["Jwt:Issuer"],
+            audience: _config["Jwt:Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddHours(1),
+            signingCredentials: creds
+        );
+        var tokenStr = new JwtSecurityTokenHandler().WriteToken(token);
+
+        return Ok(new { token = tokenStr, expires = token.ValidTo });
+    }
+}
+```
+
+### 保护 API
+在需要登录才可访问的控制器或方法上加上 `[Authorize]` ，也可指定角色：
+
+```CSharp {name="Controllers/ValuesController.cs"}
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class ValuesController : ControllerBase
+{
+    [HttpGet("secret")]
+    public IActionResult Secret() => Ok("只有认证用户能看到我");
+    
+    [HttpGet("admin")]
+    [Authorize(Roles = "Admin")]
+    public IActionResult AdminOnly() => Ok("只有 Admin 角色能看到我");
+}
+```
