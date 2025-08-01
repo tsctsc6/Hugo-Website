@@ -16,65 +16,85 @@ ASP\.NET Identity 是一个用于 ASP\.NET 应用程序的身份认证系统，�
 
 [官方文档](https://learn.microsoft.com/zh-cn/aspnet/core/security/authentication/identity)
 
-默认情况下， ASP\.NET Identity 会自动创建 7 个有关身份认证的表，表的 ER 图如下：
+默认情况下， ASP\.NET Identity 会自动创建 7 个有关身份认证的表，表的 ER 图如下（不显示字段）：
 
 ```mermaid
 erDiagram
-    AspNetUsers {
-        string Id PK "NOT NULL, UUID"
-        string UserName
-        string NormalizedUserName
-        string Email
-        string NormalizedEmail
-        boolean EmailConfirmed "NOT NULL"
-        string PasswordHash
-        string SecurityStamp "UUID"
-        string ConcurrencyStamp "UUID"
-        string PhoneNumber
-        boolean PhoneNumberConfirmed "NOT NULL"
-        boolean TwoFactorEnabled "NOT NULL"
-        timestamp LockoutEnd
-        boolean LockoutEnabled "NOT NULL"
-        integer AccessFailedCount "NOT NULL"
-    }
-    AspNetRoles {
-        string Id PK "NOT NULL, UUID"
-        string Name
-        string NormalizedName
-        string ConcurrencyStamp "UUID"
-    }
-    AspNetUserClaims {
-        integer Id PK "NOT NULL, 自增"
-        string UserId FK "NOT NULL, UUID"
-        string ClaimType
-        string ClaimValue
-    }
-    AspNetRoleClaims {
-        string Id PK "NOT NULL"
-        string RoleId FK "NOT NULL, UUID"
-        string ClaimType
-        string ClaimValue
-    }
-    AspNetUserLogins {
-        string LoginProvider PK "NOT NULL"
-        string ProviderKey PK "NOT NULL"
-        string ProviderDisplayName
-        string UserId FK "NOT NULL, UUID"
-    }
-    AspNetUserTokens {
-        string UserId PK, FK "NOT NULL, UUID"
-        string LoginProvider PK "NOT NULL"
-        string Name PK "NOT NULL"
-        string Value
-    }
-    AspNetUserRoles {
-        string UserId PK, FK "NOT NULL, UUID"
-        string RoleId PK, FK "NOT NULL, UUID"
-    }
     AspNetUsers ||--|{ AspNetUserRoles : ""
-    AspNetRoles ||--|{ AspNetUserRoles : ""
     AspNetUsers ||--|{ AspNetUserClaims : ""
-    AspNetRoles ||--|{ AspNetRoleClaims : ""
     AspNetUsers ||--|{ AspNetUserLogins : ""
     AspNetUsers ||--|{ AspNetUserTokens : ""
+    AspNetRoles ||--|{ AspNetRoleClaims : ""
+    AspNetRoles ||--|{ AspNetUserRoles : ""
 ```
+
+以下是各个表的字段的介绍。
+
+> * Type 一栏，不是准确的数据库的类型，在不同的数据库会有所不同。
+> * "NN" 指 "NOT NULL"
+
+### AspNetUsers 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| string | Id | &#10004; |  | &#10004; | 格式为 UUID |
+| string | UserName |  |  |  |  |
+| string | NormalizedUserName |  |  |  | UserName 字段的全大写形式 |
+| string | Email |  |  |  |  |
+| string | NormalizedEmail |  |  |  | Email 字段的全大写形式 |
+| boolean | EmailConfirmed |  |  | &#10004; |  |
+| string | PasswordHash |  |  |  |  |
+| string | SecurityStamp |  |  |  | 格式为 UUID |
+| string | ConcurrencyStamp |  |  |  | 格式为 UUID |
+| string | PhoneNumber |  |  |  |  |
+| boolean | PhoneNumberConfirmed |  |  | &#10004; |  |
+| boolean | TwoFactorEnabled |  |  | &#10004; |  |
+| timestamp | LockoutEnd |  |  |  |  |
+| boolean | LockoutEnabled |  |  | &#10004; |  |
+| integer | AccessFailedCount |  |  | &#10004; |  |
+
+### AspNetRoles 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| string | Id | &#10004; |  | &#10004; | 格式为 UUID |
+| string | Name |  |  |  |  |
+| string | NormalizedName |  |  |  |  |
+| string | ConcurrencyStamp |  |  |  | 格式为 UUID |
+
+### AspNetUserClaims 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| integer | Id | &#10004; |  | &#10004; | 自增 Id |
+| string | UserId |  | &#10004; | &#10004; | 格式为 UUID |
+| string | ClaimType |  |  |  |  |
+| string | ClaimValue |  |  |  |  |
+
+### AspNetRoleClaims 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| integer | Id | &#10004; |  | &#10004; | 自增 Id |
+| string | RoleId |  | &#10004; | &#10004; | 格式为 UUID |
+| string | ClaimType |  |  |  |  |
+| string | ClaimValue |  |  |  |  |
+
+### AspNetUserLogins 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| string | LoginProvider | &#10004; |  | &#10004; |  |
+| string | ProviderKey | &#10004; |  | &#10004; |  |
+| string | ProviderKey |  | &#10004; | &#10004; | 格式为 UUID |
+| string | ProviderDisplayName |  |  |  |  |
+
+### AspNetUserTokens 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| string | UserId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
+| string | LoginProvider | &#10004; |  | &#10004; |  |
+| string | Name | &#10004; |  | &#10004; |  |
+| string | Value |  |  |  |  |
+
+
+### AspNetUserRoles 表
+| Type | Name | PK | FK | NN | Remark |
+| :--: | :--: | :--: | :--: | :--: | :--: |
+| string | UserId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
+| string | RoleId | &#10004; | &#10004; | &#10004; | 格式为 UUID |
