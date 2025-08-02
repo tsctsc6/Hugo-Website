@@ -43,7 +43,7 @@ erDiagram
 | string | NormalizedEmail |  |  |  | Email 字段的全大写形式 |
 | boolean | EmailConfirmed |  |  | &#10004; | 邮箱是否有效（比如通过邮箱验证码认证） |
 | string | PasswordHash |  |  |  |  |
-| string | SecurityStamp |  |  |  | 格式为 UUID |
+| string | SecurityStamp |  |  |  | 格式为 Base64 |
 | string | ConcurrencyStamp |  |  |  | 格式为 UUID |
 | string | PhoneNumber |  |  |  |  |
 | boolean | PhoneNumberConfirmed |  |  | &#10004; |  |
@@ -165,8 +165,21 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 ```CSharp {name="Program.cs"}
 // 1) 添加 DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
-);
+{
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // 初始化角色
+    options.UseSeeding((context, _) =>
+    {
+        context.Add<IdentityRole>(new()
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Admin",
+            NormalizedName = "ADMIN",
+            ConcurrencyStamp = Guid.NewGuid().ToString()
+        });
+        context.SaveChanges();
+    });
+});
 
 // 2) 添加 Identity
 builder.Services
@@ -195,7 +208,7 @@ builder.Services
             ValidateIssuer = true,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidateAudience = true,
-            ValidAudience = builder.Configuratio["Jwt:Audience"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
             ValidateLifetime = true,
@@ -226,7 +239,7 @@ app.Run();
 ```json {name="appsettings.json"}
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=.;Database=MyApiDb;Trusted_Connection=True;"
+    "DefaultConnection": "DataSource=app.db;Cache=Shared"
   },
   "Jwt": {
     "Key": "至少32字符的随机密钥串",
@@ -242,23 +255,25 @@ dotnet ef migrations add InitIdentity
 dotnet ef database update
 ```
 
+> 在使用 `dotnet ef database update` 时，仅触发 `UseSeeding` 方法，不触发  `UseAsyncSeeding` 方法。
+
 ### 编写注册和登录 API
 定义 DTO:
 
 ```CSharp {name="DTOs/RegisterDto.cs"}
 public class RegisterDto
 {
-    public string UserName { get; set; } = "";
-    public string Email    { get; set; } = "";
-    public string Password { get; set; } = "";
+    public string UserName { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
 ```
 
 ```CSharp {name="DTOs/LoginDto.cs"}
 public class LoginDto
 {
-    public string UserName { get; set; } = "";
-    public string Password { get; set; } = "";
+    public string UserName { get; set; } = string.Empty;
+    public string Password { get; set; } = string.Empty;
 }
 ```
 
@@ -273,8 +288,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using TestJWT.DTOs;
 using TestJWT.Models;
-
-namespace TestJWT.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -304,7 +317,7 @@ public class AuthController : ControllerBase
             return BadRequest(result.Errors);
 
         // （可选）给用户分配默认角色
-        // await _userMgr.AddToRoleAsync(user, "User");
+        await _userMgr.AddToRoleAsync(user, "Admin");
 
         return Ok(new { Message = "注册成功" });
     }
@@ -328,7 +341,7 @@ public class AuthController : ControllerBase
         };
         // 加入角色声明
         var roles = await _userMgr.GetRolesAsync(user);
-        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+        claims.AddRange(roles.Select(r => new Claim("role", r)));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
         var creds  = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -350,16 +363,162 @@ public class AuthController : ControllerBase
 在需要登录才可访问的控制器或方法上加上 `[Authorize]` ，也可指定角色：
 
 ```CSharp {name="Controllers/ValuesController.cs"}
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
 public class ValuesController : ControllerBase
 {
-    [HttpGet("secret")]
-    public IActionResult Secret() => Ok("只有认证用户能看到我");
-    
+    [HttpGet("hello")]
+    public IActionResult Hello()
+    {
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var userName = User.Identity?.Name;
+        return Ok($"Hello, {userId}, {userName}!");
+    }
+
     [HttpGet("admin")]
     [Authorize(Roles = "Admin")]
-    public IActionResult AdminOnly() => Ok("只有 Admin 角色能看到我");
+    public IActionResult AdminOnly()
+    {
+        var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+        var userId = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+        var userName = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+        return Ok($"Hello, {role}, {userId}, {userName}!");
+    }
 }
 ```
+
+## 测试
+### 注册
+访问 POST /api/auth/register ,
+
+请求头加入: `Content-Type: application/json` ,
+
+请求体：
+
+```json
+{
+  "userName": "test",
+  "email": "test@test.com",
+  "password": "Admin@123"
+}
+```
+
+如果不出意外，服务器返回：
+
+```json
+{
+    "message": "注册成功"
+}
+```
+
+### 登录
+访问 POST /api/auth/login ,
+
+请求头加入: `Content-Type: application/json` ,
+
+请求体：
+
+```json
+{
+  "userName": "test",
+  "password": "Admin@123"
+}
+```
+
+如果不出意外，服务器返回：
+
+```json
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI5MTkzMzQzZS03YzBlLTQ0Y2YtODQ3Ny0yZmFiYTUxZjllZWYiLCJ1bmlxdWVfbmFtZSI6InRlc3QiLCJyb2xlIjoiQWRtaW4iLCJleHAiOjE3NTQxMTQ4NzMsImlzcyI6IlRlc3RKV1QiLCJhdWQiOiJUZXN0SldUX0NsaWVudCJ9.njYXzAmvXvkxJRxo7m4qmD4j2Ls0KcbE5TiMfWXmxJk",
+    "expires": "2025-08-02T06:07:53Z"
+}
+```
+
+### 访问 API
+访问 GET /api/values/hello ,
+
+请求头加入: `Authorization: Bearer eyJhbGc...`
+
+如果不出意外，服务器返回：
+
+```txt
+Hello, 9193343e-7c0e-44cf-8477-2faba51f9eef, test!
+```
+
+访问 GET /api/values/admin ,
+
+请求头加入: `Authorization: Bearer eyJhbGc...`
+
+如果不出意外，服务器返回：
+
+```txt
+Hello, Admin, 9193343e-7c0e-44cf-8477-2faba51f9eef, test!
+```
+
+## 分析 JWT
+如果把 [JWT](./Basic-Computer-Theory/Introduction-to-Information-Security/Session-state-management/index.md#jwt) 的 Payload 解码，我们会看到（已美观格式化）：
+
+```json
+{
+    "sub": "9193343e-7c0e-44cf-8477-2faba51f9eef",
+    "unique_name": "test",
+    "role": "Admin",
+    "exp": 1754114873,
+    "iss": "TestJWT",
+    "aud": "TestJWT_Client"
+}
+```
+
+如果在 `ValuesController` 的 `Hello` 方法的开头打上断点，调试。其中， `User.Claims` 的类型是 `IEnumerable<Claim>` ，其内容是：
+
+| Index | 属性 `Type` 的值 | 属性 `Value` 的值 |
+| :--: | :--: | :--: |
+| 0 | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier | 9193343e-7c0e-44cf-8477-2faba51f9eef |
+| 1 | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name | test |
+| 2 | http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier | Admin |
+| 3 | exp | 1754108924 |
+| 4 | iss | TestJWT |
+| 5 | aud | TestJWT_Client |
+
+那么，为什么 JWT Payload 的值，和 C# 代码内的属性 `Type` 的值，会是 uri 呢？因为 ASP\.NET 会自动把 JWT Payload 中的标准的 JWT claim 名称，映射为 `ClaimTypes` 类型字段。即，把 `sub` 映射为 `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier` , 把 `unique_name` 映射为 `http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name` ，等等。
+
+具体的映射表，可以这样查看：
+
+```CSharp
+var x = JwtSecurityTokenHandler.DefaultInboundClaimTypeMap
+```
+
+如果想关闭映射，可以在 Program.cs 中配置：
+
+```CSharp {name="Programs.cs"}
+builder.Services
+    .AddJwtBearer(options =>
+    {
+        options.MapInboundClaims = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            // 告诉授权系统“角色”就是 JWT 里的 "role"
+            RoleClaimType = "role",
+            // 告诉系统“用户名”就是 JWT 里的 "unique_name"
+            NameClaimType = JwtRegisteredClaimNames.UniqueName
+            // 其他配置 ...
+        }
+        // 其他配置 ...
+    });
+```
+
+并且，由于关闭了映射，所以 `ValuesController` 中，获取用户 Id 的方法不再有效，应该改为：
+
+```CSharp
+var role = User.Claims.FirstOrDefault(c => c.Type == "role")?.Value;
+var userId = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)?.Value;
+var userName = User.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.UniqueName)?.Value;
+return Ok($"Hello, {role}, {userId}, {userName}!");
+```
+
+> * `JwtRegisteredClaimNames` 是静态类，里面包含了一系列标准的 JWT claim 名称，在 `AuthController` 的 `Login` 方法，生成 JWT 的时候也有用到。
+> * `ClaimTypes` 是静态类，里面包含了一系列映射之后的声明值。
