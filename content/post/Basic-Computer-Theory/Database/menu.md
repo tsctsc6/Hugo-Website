@@ -12,3 +12,5 @@ categories = ['Sub Sections']
 1. [关系数据库理论](./Relational-Database-Theory/index.md)
 1. [SQL](./SQL/index.md)
 1. [ORM](./ORM/index.md)
+1. [数据库安全](./Database-security/index.md)
+1. [并发控制](./Concurrency-control/index.md)
