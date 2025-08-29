@@ -1,6 +1,6 @@
 +++
 date = '2025-05-13T15:38:42+08:00'
-draft = true
+draft = false
 title = 'Dotnet 源生成器入门'
 categories = ['Main Sections']
 tags = ['.NET', 'Source Generator']
