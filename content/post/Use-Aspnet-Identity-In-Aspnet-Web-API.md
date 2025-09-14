@@ -20,12 +20,12 @@ ASP\.NET Identity 是一个用于 ASP\.NET 应用程序的身份认证系统，�
 
 ```mermaid
 erDiagram
-    AspNetUsers ||--|{ AspNetUserRoles : ""
-    AspNetUsers ||--|{ AspNetUserClaims : ""
+    AspNetUserRoles }|--|| AspNetUsers : ""
+    AspNetUserClaims }|--|| AspNetUsers : ""
     AspNetUsers ||--|{ AspNetUserLogins : ""
     AspNetUsers ||--|{ AspNetUserTokens : ""
-    AspNetRoles ||--|{ AspNetRoleClaims : ""
-    AspNetRoles ||--|{ AspNetUserRoles : ""
+    AspNetRoleClaims }|--|| AspNetRoles : ""
+    AspNetUserRoles }|--|| AspNetRoles : ""
 ```
 
 以下是各个表的字段的介绍。
