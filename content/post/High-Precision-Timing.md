@@ -12,7 +12,7 @@ tags = ['C', '.NET']
 官方文档: [获取高分辨率时间戳](https://learn.microsoft.com/zh-cn/windows/win32/sysinfo/acquiring-high-resolution-time-stamps)
 
 ### C
-```
+```C
 #include <stdio.h>
 #include <windows.h>
 
@@ -37,7 +37,7 @@ int main()
 ### .NET
 官方文档: [Stopwatch 类](https://learn.microsoft.com/zh-cn/dotnet/api/system.diagnostics.stopwatch)
 
-```
+```CSharp
 long start = Stopwatch.GetTimestamp();
 Console.WriteLine("Done something.");
 TimeSpan delta = Stopwatch.GetElapsedTime(start);
