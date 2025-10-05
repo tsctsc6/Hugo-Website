@@ -12,7 +12,7 @@ tags = ['Windows']
 ## 通过刻录 U 盘安装
 下载 [Rufus](https://github.com/pbatard/rufus).
 
-选择下载的 iso ，刻录。
+选择下载的 iso 和 U 盘，刻录。
 
 事实上， Rufus 提供了一个功能：就是绕过在线账号的登录，直接创建一个默认的本地账号。这个功能是通过“应答文件”实现的。然而，如果想把 Windows 11 安装到虚拟机上，就不能使用 Rufus 了，需要把应答文件写入到 iso 中。
 
