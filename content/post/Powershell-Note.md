@@ -1,15 +1,16 @@
 +++
 date = '2025-05-13T16:00:00+08:00'
+lastmod = '2025-10-10T20:39:02+08:00'
 draft = false
-title = 'Powershell 常用命令'
+title = 'PowerShell 常用命令'
 categories = ['Main Sections']
-tags = ['Powershell']
+tags = ['PowerShell']
 +++
 
 ## 对一系列结果的处理
 比如，使用 `Get-Process` 可以获取一系列进程的信息:
 
-```Powershell
+```PowerShell
 Get-Process -Name alist
 ```
 
@@ -23,7 +24,7 @@ Get-Process -Name alist
 
 使用管道运算符和 `Select-Object` 可以对输出结果进行**转换**:
 
-```Powershell
+```PowerShell
 Get-Process -Name alist | Select-Object -Property Id
 ```
 
@@ -37,7 +38,7 @@ Get-Process -Name alist | Select-Object -Property Id
 
 使用管道运算符和 `Where-Object` 可以对输出结果进行**筛选**:
 
-```Powershell
+```PowerShell
 Get-Process | Where-Object { $_.ProcessName -eq "alist" }
 ```
 
@@ -51,7 +52,7 @@ Get-Process | Where-Object { $_.ProcessName -eq "alist" }
 
 使用管道运算符和 `ForEach-Object` 可以对输出结果进行**遍历**:
 
-```Powershell
+```PowerShell
 Get-Process -Name alist | ForEach-Object { $myPid = $_.Id; Get-NetTCPConnection | Where-Object { $_.OwningProcess -eq $myPid } }
 ```
 
@@ -74,12 +75,12 @@ LocalAddress                        LocalPort RemoteAddress                     
 ## 校验文件哈希
 定义变量 `fileHash` :
 
-```Powershell
+```PowerShell
 $fileHash = Get-FileHash "program.exe" -Algorithm SHA256
 ```
 
 对比哈希值：
 
-```Powershell
+```PowerShell
 $fileHash.Hash -eq "HashValue"
 ```
