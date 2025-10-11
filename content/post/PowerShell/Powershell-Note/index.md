@@ -31,23 +31,6 @@ $fileHash = Get-FileHash "program.exe" -Algorithm SHA256
 $fileHash.Hash -eq "HashValue"
 ```
 
-## Base64
-```PowerShell
-# 将字符串编码为 Base64
-$string = "Hello, PowerShell!"
-$bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
-$base64Encoded = [System.Convert]::ToBase64String($bytes)
-
-Write-Output $base64Encoded
-
-# 将 Base64 解码为字符串
-$base64String = "SGVsbG8sIFBvd2VyU2hlbGwh"
-$decodedBytes = [System.Convert]::FromBase64String($base64String)
-$decodedString = [System.Text.Encoding]::UTF8.GetString($decodedBytes)
-
-Write-Output $decodedString
-```
-
 ## 读取文件
 使用 `Get-Content` Cmdlet 读取文本内容。
 
@@ -68,3 +51,32 @@ $content = Get-Content file.txt -Raw
 ```PowerShell
 $content = Get-Content file.txt -Raw -AsByteStream
 ```
+
+## Base64
+```PowerShell
+# 将字符串编码为 Base64
+$string = "Hello, PowerShell!"
+$bytes = [System.Text.Encoding]::UTF8.GetBytes($string)
+$base64Encoded = [System.Convert]::ToBase64String($bytes)
+
+Write-Output $base64Encoded
+
+# 将 Base64 解码为字符串
+$base64String = "SGVsbG8sIFBvd2VyU2hlbGwh"
+$decodedBytes = [System.Convert]::FromBase64String($base64String)
+$decodedString = [System.Text.Encoding]::UTF8.GetString($decodedBytes)
+
+Write-Output $decodedString
+```
+
+## 脚本以管理员方式运行
+在脚本开头加上：
+
+```PowerShell
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+   sudo pwsh -NoProfile -ExecutionPolicy Bypass -File $PSCommandPath
+   exit
+}
+```
+
+> Windows 11 24H2 添加了 sudo 可执行程序，可以申请管理员权限。
