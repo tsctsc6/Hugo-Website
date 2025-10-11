@@ -135,6 +135,8 @@ $json_string = "{`"Name`": `"Alice`", `"Age`": 14}"
 $obj = ConvertFrom-Json $json_string -AsHashtable
 ```
 
+> 键值对按 JSON 字符串中显示的顺序添加。
+
 > JSON 标准允许重复键名称，但在 PSObject 和 哈希表 类型中是禁止的。 例如，如果 JSON 字符串包含重复键，则此 ConvertFrom-Json 仅使用最后一个键。
 
 ### 对象转换为 Json 字符串
