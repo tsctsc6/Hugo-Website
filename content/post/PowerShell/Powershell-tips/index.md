@@ -1,6 +1,6 @@
 +++
 date = '2025-10-11T12:10:04+08:00'
-lastmod = '2025-10-11T12:10:18+08:00'
+lastmod = '2025-10-11T15:54:05+08:00'
 draft = false
 title = 'PowerShell 小技巧'
 categories = ['Main Sections']
@@ -102,4 +102,43 @@ foreach ($key in $paramMap.Keys) {
 }
 
 Invoke-Expression $cmdLine
+```
+
+## 特殊变量
+| 变量名 | 描述 |
+| :--: | :--: |
+| $_ | 管道中当前处理的对象 |
+| $? | 上一个命令是否成功 |
+| $LASTEXITCODE | 上一个外部程序的退出码 |
+| $PSVersionTable | PowerShell 的版本信息 |
+
+### 环境变量
+PowerShell 能通过 `$env:<name>` 访问环境变量，比如通过 `$env:Path` 获取 Path 环境变量（大小写不敏感）。
+
+> 在 Windows 的 CMD 中，访问环境变量的方式是 `%<name>%` 。
+
+## Json 解析
+PowerShell 的 Cmdlet 是基于变量的，而非 PowerShell 可执行程序是基于字符串的。这就造成了隔阂。缓解这一隔阂的方法，就是让非 PowerShell 可执行程序返回 Json 字符串（别的数据交换格式也行，但 Json 最为广泛），然后 PowerShell 解析，以便处理。
+
+### Json 字符串转换为对象
+```PowerShell
+$json_string = "{`"Name`": `"Alice`", `"Age`": 14}"
+$obj = ConvertFrom-Json $json_string
+```
+
+`$obj` 的类型是 `PSCustomObject` 。
+
+如果要转换为哈希表：
+
+```PowerShell
+$json_string = "{`"Name`": `"Alice`", `"Age`": 14}"
+$obj = ConvertFrom-Json $json_string -AsHashtable
+```
+
+> JSON 标准允许重复键名称，但在 PSObject 和 哈希表 类型中是禁止的。 例如，如果 JSON 字符串包含重复键，则此 ConvertFrom-Json 仅使用最后一个键。
+
+### 对象转换为 Json 字符串
+```PowerShell
+$dic = @{Name="Tom"; "Age"=30}
+ConvertTo-Json $dic
 ```
