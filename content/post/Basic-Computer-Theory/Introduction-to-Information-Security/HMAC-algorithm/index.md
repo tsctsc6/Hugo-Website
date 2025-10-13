@@ -34,3 +34,5 @@ $$
 > * $\oplus$ : 按位异或。
 
 注意！广义来说， HMAC 算法能用于[数字签名](../Message-Digest/index.md#数字签名)，但是签名和验证都使用同一个密钥（K），也就是只有持有该密钥的一方才能生成或校验签名。
+
+参考连接: [HMAC - Wikipedia](https://en.wikipedia.org/wiki/HMAC)
