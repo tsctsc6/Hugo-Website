@@ -71,7 +71,7 @@ public partial class MyClass
 
 打开 `MyGenerator` 项目的 .csproj 文件，添加以下内容：
 
-```xml {name="MyGenerator.csproj"}
+```xml {name="MyGenerator.csproj",hl_lines=["3-6"]}
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!--⬇️-->
