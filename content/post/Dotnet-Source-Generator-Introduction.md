@@ -71,27 +71,23 @@ public partial class MyClass
 
 打开 `MyGenerator` 项目的 .csproj 文件，添加以下内容：
 
-```xml {name="MyGenerator.csproj",hl_lines=["3-6"]}
+```xml {name="MyGenerator.csproj",hl_lines=["3-4"]}
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!--⬇️-->
     <IsRoslynComponent>true</IsRoslynComponent>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <!--⬆️-->
   </PropertyGroup>
 </Project>
 ```
 
 打开 `GeneratorDemo` 项目的 .csproj 文件，添加以下内容：
 
-```xml {name="GeneratorDemo.csproj"}
+```xml {name="GeneratorDemo.csproj",hl_lines=["3-5"]}
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <!--⬇️-->
     <ProjectReference Include="..\MyGenerator\MyGenerator.csproj"
 					  OutputItemType="Analyzer" 
 					  ReferenceOutputAssembly="false"/>
-    <!--⬆️-->
   </ItemGroup>
 </Project>
 ```
