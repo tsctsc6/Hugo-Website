@@ -29,3 +29,8 @@ git push
 1. 打开命令面板（Ctrl + Shift + P），选择“文件: 比较活动文件与...”("File: Compare Active File With...")
 1. 选择 params.yml
 1. 这是界面分为两半，在两文件不同的地方，两边界面的中间，有个箭头“还原块”，可以快速地把想同步的内容同步。
+
+## reimu 示例
+[hugo-reimu-template](https://github.com/D-Sketon/hugo-reimu-template)
+
+[效果](https://d-sketon.github.io/hugo-theme-reimu/)
