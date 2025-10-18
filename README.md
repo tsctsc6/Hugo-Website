@@ -2,6 +2,17 @@
 ## 不要提交 reimu 子模块！！！
 使用 copy-params.yml.ps1 复制文件，在进行任何提交之前，撤销 reimu 子模块中的全部更改。
 
+## 克隆仓库记得克隆子模块
+```bash
+git clone --recurse-submodules <仓库地址>
+```
+
+如果已经克隆了主项目但忘记添加 `--recurse-submodules` 参数，可以通过以下命令初始化和更新子模块：
+
+```bash
+git submodule update --init --recursive
+```
+
 ## 更新 reimu
 ```bash
 git submodule update --remote
