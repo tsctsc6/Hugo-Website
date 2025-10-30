@@ -1,6 +1,6 @@
 +++
 date = '2025-05-13T15:52:01+08:00'
-lastmod = '2025-10-05T13:32:09+08:00'
+lastmod = '2025-10-30T22:43:19+08:00'
 draft = false
 title = 'Debian 常用命令'
 categories = ['Main Sections']
@@ -53,6 +53,48 @@ sudo nano /etc/apt/sources.list
 
 把第一行（也就是写着 "cdrom" 的行）注释掉。
 
+### 设置 MTU
+由于 IPv6 不允许中间路由器分片，虽然有一些机制可以自动发现传输链路中的最小 MTU ，不过如果遇到网络问题，可以尝试手动设置 MTU 。
+
+#### 查看 MTU
+```shell
+ip addr
+```
+
+记住网卡名称。
+
+#### 临时设置
+```shell
+sudo ip link set dev <你的网卡名> mtu 1400
+```
+
+#### 持久化设置
+##### 如果使用 `systemd-networkd`
+在 /etc/systemd/network/10-eth0.network 中添加：
+
+```planetext
+[Match]
+Name=eth0
+
+[Network]
+MTUBytes=1400
+```
+
+> [!info]
+> 如果 /etc/systemd/network/ 目录下没有文件，说明使用的不是 `systemd-networkd` 。
+
+##### 如果使用 `NetworkManager` (常见于桌面版)
+```shell
+nmcli connection
+```
+
+记录对应网卡的 UUID 。
+
+```shell
+sudo nmcli connection modify <对应网卡的 UUID > mtu 1400
+sudo nmcli connection up <对应网卡的 UUID >
+```
+
 ## 常用命令
 ### 命令行读写文本文件
 ```shell
@@ -74,7 +116,8 @@ $Env:HTTPS_PROXY = "http://127.0.0.1:10808"
 $Env:NO_PROXY = "localhost,127.0.0.1,::1"
 ```
 
-> ⚠️ 这样设置仅在单个会话中有效。
+> [!Warning]
+> 这样设置仅在单个会话中有效。
 
 想要持久化设置代理，编辑 ~/.bashrc 文件，在末尾加上：
 
