@@ -95,6 +95,9 @@ sudo nmcli connection modify <对应网卡的 UUID > mtu 1400
 sudo nmcli connection up <对应网卡的 UUID >
 ```
 
+> [!Warning]
+> 使用该方法后，将会导致没有 ipv4 地址；同时无法上网。
+
 ## 常用命令
 ### 命令行读写文本文件
 ```shell
