@@ -1,5 +1,6 @@
 +++
 date = '2025-11-23T12:08:47+08:00'
+lastmod = '2025-11-23T12:44:24+08:00'
 draft = false
 title = '使用 Openapi 生成 WebAPI 客户端 SDK'
 categories = ['Main Sections']
@@ -215,13 +216,28 @@ dotnet openapi add url https://example.com/openapi/v1.json
 
 ```csharp
 var client = new HttpClient();
-var apiClient = new XXX_WebApiClient("http://localhost:5095/", client);
+var apiClient = new My_WebApiClient("http://localhost:5095", client);
+var token = string.Empty;
+
 try
 {
-    var x = await apiClient.LoginAsync(new LoginRequest { Email = "a@a.com", Password = "a" });
-    Console.WriteLine(x.Code);
-    Console.WriteLine(x.ErrorMessage);
-    Console.WriteLine(x.Data is null);
+    var resp = await apiClient.LoginAsync(
+        new LoginRequest { Email = "aaa@aaa.com", Password = "Abc@123" }
+    );
+    Console.WriteLine(resp.Code);
+    token = resp.Data.Token;
+    // 添加身份认证信息（此处是 JWT）
+    client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+}
+catch (ApiException e)
+{
+    Console.WriteLine(e.Message);
+}
+
+try
+{
+    var resp = await apiClient.SomeApiNeedAuthorizationAsync();
+    Console.WriteLine(resp.Code);
 }
 catch (ApiException e)
 {
@@ -280,15 +296,22 @@ import axios from "axios";
 import { Configuration, MyApi } from "MyApi-sdk";
 
 let axiosInstance = axios.create({
-  baseURL: "https://some-domain.com",
+  baseURL: "http://localhost:5095",
   timeout: 15000,
 });
-let api = new MyApi(
+let token = "";
+let api = new MusicManagementDemoWebApiApi(
   new Configuration({}),
-  "https://some-domain.com",
+  "http://localhost:5095",
   axiosInstance
 );
-api.login({ email: "", password: "" }).then((result) => {
-  console.log(result);
-});
+
+let result = await api.login({ email: "aaa@aaa.com", password: "Abc@123" });
+console.log(result);
+token = result.data.data!.token;
+// 添加身份认证信息（此处是 JWT）
+axiosInstance.defaults.headers.common["Authorization"] = "Bearer " + token;
+
+let result2 = await api.someApiNeedAuthorization({});
+console.log(result2);
 ```
