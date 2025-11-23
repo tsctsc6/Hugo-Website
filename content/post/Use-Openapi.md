@@ -277,13 +277,13 @@ pnpm add axios
 
 ```typescript
 import axios from "axios";
-import { Configuration, MusicManagementDemoWebApiApi } from "MyApi-sdk";
+import { Configuration, MyApi } from "MyApi-sdk";
 
 let axiosInstance = axios.create({
   baseURL: "https://some-domain.com",
   timeout: 15000,
 });
-let api = new MusicManagementDemoWebApiApi(
+let api = new MyApi(
   new Configuration({}),
   "https://some-domain.com",
   axiosInstance
