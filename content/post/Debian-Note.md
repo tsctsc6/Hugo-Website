@@ -57,6 +57,80 @@ sudo nano /etc/apt/sources.list
 
 把第一行（也就是写着 "cdrom" 的行）注释掉。
 
+### 使用公钥远程登录
+
+#### 生成密钥对
+
+推荐使用 ed25519 算法。
+
+```shell
+# 在 Windows 和 Debian 都能使用
+ssh-keygen -t ed25519 -C "<your@email>" -f ~/.ssh/<file-name>
+```
+
+执行该命令后，会询问 passphrase：强烈建议设置（为密钥加一个解锁口令）。
+
+结果会生成 `~/.ssh/<file-name>`（私钥）和 `~/.ssh/<file-name>.pub`（公钥）。
+
+#### 把公钥上传到 Debian （服务端）
+
+把公钥文件的内容，放在 Debian 的 ~/.ssh/authorized_keys 文件中。
+
+在拥有公钥的设备，输出公钥内容：
+
+```shell
+cat ~/.ssh/<file-name>.pub
+```
+
+```shell
+# 假设已经通过密码远程登录 Debian
+# 将公钥粘贴到 ~/.ssh/authorized_keys（每个密钥一行）
+mkdir -p ~/.ssh
+echo "ssh-ed25519 AAAA.... your@email" >> ~/.ssh/authorized_keys
+# 设置公钥文件的权限，因为 Debian 对 ssh 公钥的权限要求严格
+chmod 600 ~/.ssh/authorized_keys
+# 设置 .ssh 文件夹的权限，因为 Debian 对 ssh 公钥的权限要求严格
+chmod 700 ~/.ssh
+chown -R <user>:<user> ~/.ssh
+```
+
+#### 验证公钥能否登录
+
+```shell
+ssh -i ~/.ssh/<file-name> <user>@<Debian-address>
+```
+
+#### 加固 ssh 配置
+
+打开 ssh 配置文件：
+
+```shell
+sudo nano /etc/ssh/sshd_config
+```
+
+```planetext
+# 允许公钥认证
+PubkeyAuthentication yes
+
+# 不允许空口令
+PermitEmptyPasswords no
+
+# 禁止 root 密码登录（保留 root 的密钥登录可选）
+PermitRootLogin prohibit-password    # 或 'no' 更严格
+
+# 关闭基于密码的认证（在确认公钥可用后启用）
+PasswordAuthentication no
+```
+
+保存后重启 ssh 服务：
+
+```shell
+sudo systemctl restart ssh
+```
+
+> [!warning]
+> 设置生效后，应保留当前 ssh 连接，另外再开一个 ssh 连接，尝试登录，以验证配置是否正确。
+
 ## 常用命令
 
 ### 命令行读写文本文件
