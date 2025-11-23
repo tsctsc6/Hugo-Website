@@ -1,6 +1,6 @@
 +++
-date = '2025-11-22T12:33:32+08:00'
-draft = true
+date = '2025-11-23T12:08:47+08:00'
+draft = false
 title = '使用 Openapi 生成 WebAPI 客户端 SDK'
 categories = ['Main Sections']
 mermaid = true
@@ -183,6 +183,112 @@ app.MapGet(
 
 可以通过设置 MSBuild 属性 OpenApiDocumentDirectory (csproj 中的 `PropertyGroup` 或 编译时 `/p:` 指令) ，设置 OpenAPI 文档生成位置。
 
-## 生成 CSharp 客户端
+## 生成 CSharp 客户端（Microsoft.Extensions.ApiDescription.Client）
 
-## 生成 TypeScript 客户端
+安装 dotnet tool :
+
+```powershell
+dotnet tool install -g Microsoft.dotnet-openapi
+```
+
+创建新的 CSharp 项目。在项目根目录：
+
+```powershell
+dotnet openapi add file openapi.json
+```
+
+或者使用 URL:
+
+```powershell
+dotnet openapi add url https://example.com/openapi/v1.json
+```
+
+执行后， .csproj 会出现：
+
+```xml
+<ItemGroup>
+  <OpenApiReference Include="xxx" />
+</ItemGroup>
+```
+
+在代码中调用 API :
+
+```csharp
+var client = new HttpClient();
+var apiClient = new XXX_WebApiClient("http://localhost:5095/", client);
+try
+{
+    var x = await apiClient.LoginAsync(new LoginRequest { Email = "a@a.com", Password = "a" });
+    Console.WriteLine(x.Code);
+    Console.WriteLine(x.ErrorMessage);
+    Console.WriteLine(x.Data is null);
+}
+catch (ApiException e)
+{
+    Console.WriteLine(e.Message);
+}
+```
+
+## 生成 TypeScript 客户端（axios）（OpenAPI Generator）
+
+安装 JAVA 和 Node.js 。下文将使用 pnpm 替代 npm 。
+
+设置 node 使用系统证书（其实就是在环境变量 "NODE_OPTIONS" 中添加 "--use-system-ca"）
+
+```powershell
+$currentNodeOptions = [Environment]::GetEnvironmentVariable("NODE_OPTIONS", [EnvironmentVariableTarget]::User)
+$currentNodeOptions = "$currentNodeOptions --use-system-ca"
+[Environment]::SetEnvironmentVariable("NODE_OPTIONS", $currentNodeOptions, [EnvironmentVariableTarget]::User)
+```
+
+通过 pnpm 安装 OpenAPI Generator
+
+```powershell
+pnpm add -g @openapitools/openapi-generator-cli
+```
+
+生成 TypeScript 客户端代码（axios）
+
+```powershell
+openapi-generator-cli generate `
+  -i openapi.json `
+  -g typescript-axios `
+  -o MyApi-sdk `
+  --additional-properties npmName=myapi-sdk `
+  --additional-properties npmVersion=1.0.0 `
+  --additional-properties supportsES6=true;
+```
+
+进入目录，安装依赖，构建 npm 包
+
+```powershell
+cd MyApi-sdk
+pnpm install
+```
+
+创建新的 typescript 项目，添加引用和相关依赖：
+
+```powershell
+pnpm add <path-to-MyApi-sdk>
+pnpm add axios
+```
+
+在代码中调用 API :
+
+```typescript
+import axios from "axios";
+import { Configuration, MusicManagementDemoWebApiApi } from "MyApi-sdk";
+
+let axiosInstance = axios.create({
+  baseURL: "https://some-domain.com",
+  timeout: 15000,
+});
+let api = new MusicManagementDemoWebApiApi(
+  new Configuration({}),
+  "https://some-domain.com",
+  axiosInstance
+);
+api.login({ email: "", password: "" }).then((result) => {
+  console.log(result);
+});
+```
