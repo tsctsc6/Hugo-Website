@@ -1,6 +1,6 @@
 +++
 date = '2025-05-13T15:52:01+08:00'
-lastmod = '2025-10-30T22:43:19+08:00'
+lastmod = '2025-11-23T18:07:25+08:00'
 draft = false
 title = 'Debian 常用命令'
 categories = ['Main Sections']
