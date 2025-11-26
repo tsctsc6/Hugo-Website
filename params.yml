@@ -104,7 +104,7 @@ footer:
     mask: true # whether to use the images as a mask
 
 # Sidebar
-sidebar: right
+sidebar: left
 
 social:
   # email: mailto:xxx@gmail.com
