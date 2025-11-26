@@ -156,7 +156,7 @@ summary:
   style: 'subtitle' # 'subtitle' or 'blockquote'
 
 triangle_badge:
-  enable: false
+  enable: true
   icon: github # same as the icon in the social config
   link: https://github.com/tsctsc6/Hugo-Website
 
