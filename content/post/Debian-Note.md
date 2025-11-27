@@ -143,17 +143,25 @@ sudo nano file.txt
 
 有些程序不会走系统代理，需要手动指定代理。大部分程序，会读取环境变量，来指定代理。
 
+{{< tabs >}}
+
+<!-- tab Shell -->
+
 ```shell
 export HTTP_PROXY="http://127.0.0.1:10808"
 export HTTPS_PROXY="http://127.0.0.1:10808"
-export NO_PROXY="localhost,127.0.0.1,::1"
+export NO_PROXY="127.0.0.1,::1"
 ```
+
+<!-- tab PowerShell -->
 
 ```powershell
 $Env:HTTP_PROXY = "http://127.0.0.1:10808"
 $Env:HTTPS_PROXY = "http://127.0.0.1:10808"
-$Env:NO_PROXY = "localhost,127.0.0.1,::1"
+$Env:NO_PROXY = "127.0.0.1,::1"
 ```
+
+{{</ tabs >}}
 
 > [!Warning]
 > 这样设置仅在单个会话中有效。
@@ -163,7 +171,7 @@ $Env:NO_PROXY = "localhost,127.0.0.1,::1"
 ```shell
 export HTTP_PROXY="http://127.0.0.1:10808"
 export HTTPS_PROXY="http://127.0.0.1:10808"
-export NO_PROXY="localhost,127.0.0.1,::1"
+export NO_PROXY="127.0.0.1,::1"
 ```
 
 ### 图形界面的开关
