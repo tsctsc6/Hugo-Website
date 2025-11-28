@@ -163,6 +163,28 @@ $Env:NO_PROXY = "127.0.0.1,::1"
 
 {{</ tabs >}}
 
+如果代理工具支持，更推荐使用 SOCKS5 协议：
+
+{{< tabs >}}
+
+<!-- tab Shell -->
+
+```shell
+export HTTP_PROXY="socks5://127.0.0.1:10808"
+export HTTPS_PROXY="socks5://127.0.0.1:10808"
+export NO_PROXY="127.0.0.1,::1"
+```
+
+<!-- tab PowerShell -->
+
+```powershell
+$Env:HTTP_PROXY = "socks5://127.0.0.1:10808"
+$Env:HTTPS_PROXY = "socks5://127.0.0.1:10808"
+$Env:NO_PROXY = "127.0.0.1,::1"
+```
+
+{{</ tabs >}}
+
 > [!Warning]
 > 这样设置仅在单个会话中有效。
 
