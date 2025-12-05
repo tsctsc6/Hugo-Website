@@ -62,8 +62,6 @@ categories = ['Sub Sections']
 
 {{<link title="块加密的工作模式" link="https://www.ruanx.net/block-cipher-mode/" cover="auto">}}
 
-{{<link title="块加密的工作模式(pdf)" link="/references/Block-encryption-mode-of-operation.pdf" cover="auto">}}
-
 流密码通过密钥生成一系列随机数。对于每一个明文的字节，取一个随机数与其异或。
 
 目前(2025 年)常用的分组密码有： AES-256 ，常用的流密码有： ChaCha20 。
