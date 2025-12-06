@@ -230,6 +230,8 @@ AEAD（带有关联数据的认证加密）（Authenticated Encryption with Asso
 1. 计算密文的 Poly1305 MAC ， 也就是 Tag 。具体见[计算 Poly1305 MAC](#计算-poly1305-mac)小节。
 1. 输出密文和 Tag 。
 
+把密文、 Nonce 、 Tag 和 Aad 发送给对方。
+
 该算法的解密步骤，输入是： Key, Nonce, CipherText, Tag(消息认证码), Aad(附加信息(可选，明文)) 。输出是： PlainText 。
 
 1. 使用 Key 和 Nonce 初始化状态矩阵， counter 必须是 0，这是 RFC 8439 规定的。
