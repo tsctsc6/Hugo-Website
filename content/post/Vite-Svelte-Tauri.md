@@ -1,5 +1,6 @@
 +++
 date = '2025-06-08T19:30:28+08:00'
+lastmod = '2025-12-09T16:37:10+08:00'
 draft = false
 title = '使用 Vite-Svelte-Tauri 开发前端应用'
 categories = ['Main Sections']
@@ -45,21 +46,108 @@ Vite 支持各种前端 UI 框架，包括 Vue 、 React 、 Preact 、 Svelte �
 - msvc 套件（使用 [Visual Studio 2022 生成工具](https://visualstudio.microsoft.com/zh-hans/downloads/)，安装 C++ 桌面开发）
 - IDE: JetBrains WebStorm
 
-如果要使用 Tauri 打包安卓应用，还需要安装：
+### 安卓环境配置
 
-- rust toolchains:
-  - aarch64-linux-android
-  - armv7-linux-androideabi
-  - i686-linux-android
-  - x86_64-linux-android
-- Java（配置环境变量 JAVA_HOME）
-- Android-SDK（配置环境变量 ANDROID_HOME）
-- NDK（配置环境变量 NDK_HOME）
-- 创建一个 AVD (Android Virtual Devices)，以供测试。
+如果要使用 Tauri 打包安卓应用，还需要安装一系列依赖，非常复杂。
 
-> 对于最后三项，直接安装 Android Studio 比较省事。
+#### rust toolchains:
+
+- aarch64-linux-android
+- armv7-linux-androideabi
+- i686-linux-android
+- x86_64-linux-android
+
+在调式或构建安卓时，会自动安装。
+
+#### Java
+
+配置环境变量 JAVA_HOME 。如果 Java 版本太新，可能也会报错“Java version xx or higher is required. To override this check set SKIP_JDK_VERSION_CHECK”。
+
+#### Android-SDK
+
+直接安装 Android Studio 比较省事，但是为此安装一个 IDE ，代价有点高。所以下面介绍纯命令行工具的安装。
+
+首先下载 Android-SDK 。在下面的连接中，找到并下载“仅限命令行工具”。
+
+{{<link title="下载 Android Studio 和应用工具 - Android 开发者 | Android Developers" link="https://developer.android.com/studio#command-tools" cover="auto">}}
+
+然后解压到任意目录中。解压后结构应为：
+
+```
+cmdline-tools\
+ ├── bin\
+ │   ├── sdkmanager.bat
+ │   ├── avdmanager.bat
+ │   ├── ...
+ ├── lib\
+ │   ├── ...
+```
+
+配置环境变量 ANDROID_HOME="<floder-path>\cmdline-tools\bin"。
+
+尝试运行命令 `sdkmanager --list` 。如果报错：“Error: Could not determine SDK root. Error: Either specify it explicitly with --sdk_root= or move this package into its expected location: <sdk>\cmdline-tools\latest\”
+
+就把目录结构改为：
+
+```
+cmdline-tools\
+ ├── latest\
+     ├── bin\
+     │   ├── sdkmanager.bat
+     │   ├── avdmanager.bat
+     │   ├── ...
+     ├── lib\
+     │   ├── ...
+```
+
+默认情况下，安卓相关的东西，都会下载到 `用户文件夹\.android\` 文件夹下。
+
+设置环境变量 ANDROID_USER_HOME="D:\\.user-home\\.android" ，之后安卓相关的构建缓存会在这里。
+
+安装相关套件（以 Android 34 为例）：
+
+```powershell
+sdkmanager `
+  "platform-tools" `
+  "platforms;android-34" `
+  "build-tools;34.0.0"
+  "ndk;26.1.10909125"
+```
+
+#### AVD (可选)
+
+设置环境变量 ANDROID_AVD_HOME="D:\\.user-home\\.android\\.avd" 。要和环境变量 ANDROID_USER_HOME 对应。
+
+创建一个 AVD (Android Virtual Devices)，以供测试。
+
+下载模拟器：
+
+```
+sdkmanager "emulator"
+sdkmanager "system-images;android-34;google_apis;x86_64"
+```
+
+创建模拟器：
+
+```
+avdmanager create avd -n test -k "system-images;android-34;google_apis;x86_64"
+```
+
+查看模拟器列表：
+
+```
+avdmanager list avd
+```
+
+启动模拟器：
+
+```
+emulator -avd <name>
+```
 
 ## 初始化项目
+
+### Vite
 
 输入一下命令创建项目：
 
@@ -75,13 +163,15 @@ npm create vite@latest
 npm install
 ```
 
+### Tauri Desktop
+
 安装 Tauri ：
 
 ```shell
 npm install @tauri-apps/cli @tauri-apps/api
 ```
 
-初始化 Tauri 打包项目：
+初始化 Tauri Desktop 项目：
 
 ```shell
 npx tauri init
@@ -91,7 +181,9 @@ npx tauri init
 
 如果想更改刚刚的配置，可以在 src-tauri/tauri.conf.json 中更改。
 
-如果想打包为安卓应用，执行命令：
+### Tauri Android
+
+初始化 Tauri Android 项目：
 
 ```shell
 npx tauri android init
@@ -99,7 +191,69 @@ npx tauri android init
 
 完成命令后，会出现 src-tauri/gen/android 文件夹，是安卓项目的工程文件。
 
-添加脚本（**非常重要**）：在项目根目录下的 package.json 文件夹下，添加：
+若是“不信任证书”的错误，对此，要修改 ./src-tauri/gen/android/gradle.properties 文件，使用操作系统证书库：
+
+```txt {name="./src-tauri/gen/android/gradle.properties"}
+systemProp.javax.net.ssl.trustStores=
+systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
+```
+
+---
+
+第一次运行要下载 Gradle 。
+
+默认情况下， Gradle 会自动下载到 `用户文件夹\.gradle\` 文件夹下。
+
+设置环境变量 GRADLE_USER_HOME="D:\\.user-home\\.gradle" ，之后下载的 Gradle 会安装到这里。
+
+{{< tabs >}}
+
+<!-- tab 从镜像源安装 Gradle -->
+
+```txt {name="./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties"}
+distributionUrl=https://mirrors.aliyun.com/macports/distfiles/gradle/gradle-x.x.x-all.zip
+```
+
+<!-- tab 从本地安装 Gradle -->
+
+```txt {name="./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties"}
+distributionUrl=file:///C:/file/path/gradle-x.x.x-all.zip
+```
+
+{{</ tabs >}}
+
+---
+
+构建需要下载 maven 包。
+
+{{< tabs >}}
+
+<!-- tab 从镜像源下载 maven 包 -->
+
+```txt {name="./src-tauri/gen/android/gradle.properties"}
+......
+repositories.grails.default = https://mirrors.ustc.edu.cn/maven/
+repositories.grails.default.1 = https://mirrors.tuna.tsinghua.edu.cn/maven/repos/public
+repositories.grails.default.2 = https://maven.aliyun.com/repository/public
+```
+
+<!-- tab 通过代理下载 maven 包 -->
+
+```txt {name="./src-tauri/gen/android/gradle.properties"}
+......
+systemProp.http.proxyHost=proxy.example.com
+systemProp.http.proxyPort=8080
+systemProp.https.proxyHost=proxy.example.com
+systemProp.https.proxyPort=8080
+systemProp.http.proxyUser=username
+systemProp.http.proxyPassword=password
+```
+
+{{</ tabs >}}
+
+### 添加脚本
+
+（**非常重要**）：在项目根目录下的 package.json 文件夹下，添加：
 
 ```json {name="package.json"}
 {
@@ -176,43 +330,6 @@ export default defineConfig(({mode}) => {
   };
 });
 
-```
-
-### 安卓端可能出现的问题
-
-对于安卓端，运行可能会出现“不信任证书”的错误，对此，要修改 ./src-tauri/gen/android/gradle.properties 文件，使用操作系统证书库：
-
-```txt {name="./src-tauri/gen/android/gradle.properties"}
-systemProp.javax.net.ssl.trustStores=
-systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
-```
-
-对于安卓端，第一次运行要下载 gradle 和各种 maven 包，会非常非常慢。
-
-对于 gradle ，可以从镜像源安装；或者先下载对应版本的 gradle ，然后从本地安装。修改 ./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties 文件中的 distributionUrl 字段：
-
-```txt {name="./src-tauri/gen/android/gradle/wrapper/gradle-wrapper.properties"}
-# 本地安装
-distributionUrl=file:///C:/file/path/gradle-x.x.x-all.zip
-# 镜像安装
-distributionUrl=https://mirrors.aliyun.com/macports/distfiles/gradle/gradle-x.x.x-all.zip
-```
-
-对于 maven 包，可以使用镜像源，或者代理。在 ./src-tauri/gen/android/gradle.properties 文件中加入：
-
-```txt {name="./src-tauri/gen/android/gradle.properties"}
-......
-# 使用镜像
-repositories.grails.default = https://mirrors.ustc.edu.cn/maven/
-repositories.grails.default.1 = https://mirrors.tuna.tsinghua.edu.cn/maven/repos/public
-repositories.grails.default.2 = https://maven.aliyun.com/repository/public
-# 使用代理
-systemProp.http.proxyHost=proxy.example.com
-systemProp.http.proxyPort=8080
-systemProp.https.proxyHost=proxy.example.com
-systemProp.https.proxyPort=8080
-systemProp.http.proxyUser=username
-systemProp.http.proxyPassword=password
 ```
 
 ## 构建
