@@ -1,6 +1,6 @@
 +++
 date = '2025-08-29T22:37:55+08:00'
-lastmod = '2025-12-20T15:31:02+08:00'
+lastmod = '2025-12-21T23:22:34+08:00'
 draft = false
 title = 'Dotnet 源生成器入门'
 categories = ['Main Sections']
@@ -379,24 +379,9 @@ Hello, World!
 
 #### 断点调试
 
-##### Visual Studio
+需要安装 .NET Compiler Platform SDK .
 
-可以在 `Initialize` 方法添加以下代码：
-
-```CSharp
-public void Initialize(IncrementalGeneratorInitializationContext context)
-{
-    if (!Debugger.IsAttached)
-    {
-        Debugger.Launch();
-    }
-    // ......
-}
-```
-
-运行 `GeneratorDemo` 项目后，会出现弹窗，让你选择现有的 VS 实例或新建 VS 实例，选择后，就能进行断点调试了。
-
-##### JetBrains Rider
+{{<link title=".NET Compiler Platform SDK (Roslyn API) - C# | Microsoft Learn" link="https://learn.microsoft.com/zh-cn/dotnet/csharp/roslyn-sdk/" cover="auto">}}
 
 在 `MyGenerator` 项目的跟目录添加 `Properties/launchSettings.json` ，填写以下内容：
 
@@ -414,7 +399,7 @@ public void Initialize(IncrementalGeneratorInitializationContext context)
 
 > 其中， `targetProject` 字段，表示的是你想将这个源生成器作用于哪个项目。
 
-此时，右上角出现了新的启动项： "MyGenerator: Generators" 。打上断点，运行，即可进行断点调试。
+此时， IDE 出现了新的启动项： "MyGenerator: Generators" 。打上断点，运行，即可进行断点调试。
 
 #### 诊断报告
 
