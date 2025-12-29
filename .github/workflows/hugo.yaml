@@ -1,4 +1,4 @@
-# 用于构建和部署Hugo网站到GitHub Pages的示例工作流程
+# 构建和部署 Hugo 网站到 GitHub Pages 的工作流程
 name: 发布 Hugo 网站到 Pages
 
 on:
@@ -10,7 +10,7 @@ on:
   # 允许您手动从“Actions”标签运行此工作流程
   workflow_dispatch:
 
-# 设置GITHUB_TOKEN的权限，以允许部署到GitHub Pages
+# 设置 GITHUB_TOKEN 的权限，以允许部署到 GitHub Pages
 permissions:
   contents: read
   pages: write
@@ -22,7 +22,7 @@ concurrency:
   group: "pages"
   cancel-in-progress: false
 
-# 默认使用bash
+# 默认使用 bash
 defaults:
   run:
     shell: bash
@@ -44,7 +44,7 @@ jobs:
           submodules: recursive
           fetch-depth: 0
           lfs: true
-      - name: 设置Pages
+      - name: 设置 Pages
         id: pages
         uses: actions/configure-pages@v3
       - name: 安装 Node.js 依赖
@@ -53,7 +53,7 @@ jobs:
         run: npm install atomic-algolia cross-env
       - name: 使用 Hugo 构建
         env:
-          # 为了与Hugo模块的最大向后兼容性
+          # 为了与 Hugo 模块的最大向后兼容性
           HUGO_ENVIRONMENT: production
           HUGO_ENV: production
         run: |
@@ -76,6 +76,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: 部署到GitHub Pages
+      - name: 部署到 GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
