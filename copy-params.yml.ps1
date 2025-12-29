@@ -1,1 +1,0 @@
-cp -Force ./params.yml ./themes/reimu/config/_default/params.yml
