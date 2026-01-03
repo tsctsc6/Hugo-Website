@@ -1,6 +1,5 @@
 # Hugo-Website
-## 不要提交 reimu 子模块！！！
-使用 copy-params.yml.ps1 复制文件，在进行任何提交之前，撤销 reimu 子模块中的全部更改。
+## 不要提交 reimu 子模块！
 
 ## 克隆仓库记得克隆子模块
 ```bash
@@ -13,22 +12,15 @@ git clone --recurse-submodules <仓库地址>
 git submodule update --init --recursive
 ```
 
-## 更新 reimu
+## 更新 reimu 到特定的 commit
 ```bash
-git submodule update --remote
 cd themes/reimu
-git fetch
+git reset --hard <目标commit_hash>
 cd ../..
-git add *
+git add themes/reimu
 git commit -m "chore: update reimu"
 git push
 ```
-如果 reimu 的 params.yml 有重大更新，可以这样做：
-
-1. 使用 VSCode ，打开 themes/reimu/config/_default/params.yml
-1. 打开命令面板（Ctrl + Shift + P），选择“文件: 比较活动文件与...”("File: Compare Active File With...")
-1. 选择 params.yml
-1. 这是界面分为两半，在两文件不同的地方，两边界面的中间，有个箭头“还原块”，可以快速地把想同步的内容同步。
 
 ## reimu 示例
 [hugo-reimu-template](https://github.com/D-Sketon/hugo-reimu-template)
