@@ -1,6 +1,6 @@
 +++
 date = '2025-10-05T13:34:57+08:00'
-lastmod = '2025-10-05T13:35:00+08:00'
+lastmod = '2026-01-03T17:35:17+08:00'
 draft = false
 title = '安装 Windows 11 指南'
 categories = ['Main Sections']
@@ -117,12 +117,18 @@ tags = ['Windows']
 
 ```powershell
 # 定义路径
-$SourceISOPath = "path\to\Win11_24H2_Chinese_Simplified_x64.iso"
-$UnattendFilePath = ".\unattend.xml"
-$NewISOPath = ".\Win11_24H2_Chinese_Simplified_x64.with_AutoUnattend.iso"
+$ErrorActionPreference = "Stop"
+# 先安装 Windows Assessment and Deployment Kit (ADK)
+# https://learn.microsoft.com/en-us/windows-hardware/get-started/adk-install
+# 安装时只需选择 "部署工具"
+# 以管理员身份运行 PowerShell
+
+# 定义路径
+$SourceISOPath = "E:\Operating-System-Image\Win11_25H2_Chinese_Simplified_x64.iso"
+$UnattendFilePath = ".\autounattend.xml"
+$NewISOPath = ".\Win11_25H2_Chinese_Simplified_x64.with_Autounattend.iso"
 $TempExtractPath = ".\temp\Win11Extract"
-$TargetUnattendFilePath = "$TempExtractPath" + '\sources\$OEM$\$$\Panther\unattend.xml'
-$OscdimgPath = "C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg"
+$TargetUnattendFilePath = "$TempExtractPath" + '\sources\$OEM$\$$\Panther'
 
 # 创建临时目录
 New-Item -ItemType Directory -Path $TempExtractPath -Force
@@ -130,24 +136,21 @@ New-Item -ItemType Directory -Path $TempExtractPath -Force
 # 挂载并复制 ISO 内容
 $isoImage = Mount-DiskImage -ImagePath $SourceISOPath -PassThru
 $driveLetter = ($isoImage | Get-Volume).DriveLetter + ":"
-Copy-Item -Path "$driveLetter\*" -Destination $TargetUnattendPath $TempExtractPath -Recurse -Force
+Copy-Item -Path "$driveLetter\*" -Destination $TempExtractPath -Recurse -Force
 Dismount-DiskImage -ImagePath $SourceISOPath
 
 # 复制应答文件
-Copy-Item -Path $UnattendFilePath -Destination $TargetUnattendFilePath -Force
+New-Item -ItemType Directory -Path $TargetUnattendFilePath -Force
+Copy-Item -Path $UnattendFilePath -Destination "$TargetUnattendFilePath\unattend.xml" -Force
 
 # 创建新 ISO
-# UEFI
-&"$OscdimgPath\oscdimg.exe" -m -u2 -udfver102 -b"$OscdimgPath\efisys.bin" -l"WIN11_UEFI" $TempExtractPath $NewISOPath
-# BIOS
-# &"$OscdimgPath\oscdimg.exe" -m -u2 -udfver102 -b"$OscdimgPath\etfsboot.com" -l"Win11_Install" $TempExtractPath $NewISOPath
-
-Write-Host "新的 ISO 已创建: $NewISOPath" -ForegroundColor Green
+&"C:\Program Files (x86)\Windows Kits\10\Assessment and Deployment Kit\Deployment Tools\amd64\Oscdimg\oscdimg.exe" `
+    -m -u2 -udfver102 -b"$TempExtractPath\efi\microsoft\boot\efisys.bin" -l"WIN11_UEFI" $TempExtractPath $NewISOPath
     
-Pause
-
 # 清理
 Remove-Item -Path $TempExtractPath -Recurse -Force
+
+Write-Host "新的 ISO 已创建: $NewISOPath" -ForegroundColor Green
 ```
 
 在创建新 ISO 的时候，需要指定引导文件。

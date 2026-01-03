@@ -1,6 +1,6 @@
 +++
 date = '2025-10-11T12:10:04+08:00'
-lastmod = '2025-10-11T15:54:05+08:00'
+lastmod = '2026-01-03T17:34:13+08:00'
 draft = false
 title = 'PowerShell 小技巧'
 categories = ['Main Sections']
@@ -143,4 +143,24 @@ $obj = ConvertFrom-Json $json_string -AsHashtable
 ```PowerShell
 $dic = @{Name="Tom"; "Age"=30}
 ConvertTo-Json $dic
+```
+
+## 创建全局函数
+在 PowerShell 窗口中，输入：
+
+```powershell
+$PROFILE
+```
+
+这会显示 Profile 文件的完整路径。
+
+如果文件不存在，创建它。打开这个文件，编写全局函数：
+
+```powershell
+function Write-Greeting {
+    param(
+        [string]$Name = "World"
+    )
+    Write-Host "Hello, $Name from a global function!"
+} 
 ```

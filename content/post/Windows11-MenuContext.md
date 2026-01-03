@@ -1,6 +1,6 @@
 +++
 date = '2025-10-10T17:50:56+08:00'
-lastmod = '2025-10-10T17:51:18+08:00'
+lastmod = '2026-01-03T17:34:51+08:00'
 draft = false
 title = '自定义 Windows 11 新版右键菜单'
 categories = ['Main Sections']
@@ -86,3 +86,13 @@ Pause;
 
 ## 安装及使用
 见[官方 wiki](https://github.com/ikas-mc/ContextMenuForWindows11/wiki)
+
+另外，如果 .msix 文件显示，证书验证失败，说明系统不信任这个安装包的证书，可以这么做：
+
+* 右键点击你的 .msix 文件（或 .msixbundle）。
+* 选择“属性”。
+* 切换到“数字签名”选项卡。
+* 在签名者列表中，选择签名名称，点击“详细信息”。
+* 查看证书
+* 把证书安装到本地机器，收信任人位置
+* 安装
