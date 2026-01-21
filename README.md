@@ -1,7 +1,9 @@
 # Hugo-Website
-## 不要提交 reimu 子模块！
+
+## 不要提交 reimu 子模块
 
 ## 克隆仓库记得克隆子模块
+
 ```bash
 git clone --recurse-submodules <仓库地址>
 ```
@@ -13,6 +15,7 @@ git submodule update --init --recursive
 ```
 
 ## 更新 reimu 到特定的 commit
+
 ```bash
 cd themes/reimu
 git reset --hard <目标commit_hash>
@@ -23,6 +26,7 @@ git push
 ```
 
 ## reimu 示例
+
 [hugo-reimu-template](https://github.com/D-Sketon/hugo-reimu-template)
 
 [效果](https://d-sketon.github.io/hugo-theme-reimu/)
