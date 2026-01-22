@@ -86,15 +86,15 @@ erDiagram
 
 ```mermaid
 flowchart TD
-    Food["`1 Food 18`"]
-    Fruit["`2 Fruit 11`"]
-    Red["`3 Red 6`"]
-    Cherry["`4 Cherry 5`"]
-    Yellow["`7 Yellow 10`"]
-    Banana["`8 Banana 9`"]
-    Meat["`12 Meat 17`"]
-    Beaf["`13 Beaf 14`"]
-    Pork["`15 Pork 16`"]
+    Food["`1 <u>Food</u> 18`"]
+    Fruit["`2 <u>Fruit</u> 11`"]
+    Red["`3 <u>Red</u> 6`"]
+    Cherry["`4 <u>Cherry</u> 5`"]
+    Yellow["`7 <u>Yellow</u> 10`"]
+    Banana["`8 <u>Banana</u> 9`"]
+    Meat["`12 <u>Meat</u> 17`"]
+    Beaf["`13 <u>Beaf</u> 14`"]
+    Pork["`15 <u>Pork</u> 16`"]
 
     Food --> Fruit
     Fruit --> Red
