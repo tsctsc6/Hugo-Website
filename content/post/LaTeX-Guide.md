@@ -187,6 +187,35 @@ LaTeX 使用 `%` 注释。
 \newpage % 新起一页
 ```
 
+### 将文档分散到多个文件
+
+将文档分散到多个文件，主要有以下方法：
+
+| 方法 | 自动分页 | 支持局部编译 | 子文件可单独编译 |
+| :--: | :--: | :--: | :--: |
+| `\input` | ❌ | ❌ | ❌ |
+| `\include` | ✅ | ✅ | ❌ |
+| subfiles 宏包 | ❌ | ✅ | ✅ |
+
+以 `\input` 为例：
+
+```latex {name="main.tex"}
+\documentclass{book}
+
+\begin{document}
+
+\input{chapter1.tex}
+\input{chapter2.tex}
+
+\end{document}
+```
+
+```latex {name="chapter1.tex"}
+\section{第一章}
+
+这里是第一章内容。
+```
+
 ## 常用宏包
 
 ### 中文支持
