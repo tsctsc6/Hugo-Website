@@ -292,6 +292,16 @@ fn main() {
 
 第一次生成 pdf 后，应该是代码的地方，可能会有 "\<minted\>" 样子的红色字样，再编译一次即可。
 
+## 但是话又说回来
+
+其实 Typst 也是挺好的，与 LaTeX 相比：
+
+* Typst 本体非常轻量，大概十几 MB，与动辄十几 GB 的 TeX Live 相比，呵呵。
+* Typst 的语法更加现代化，更易学；可以嵌入简单脚本来生成文档。
+* Typst 还有实时预览的功能
+
+{{<externalLinkCard title="Typst Github 地址" link="https://github.com/typst/typst" cover="auto">}}
+
 ## 参考链接
 
 {{<externalLinkCard title="【LaTeX入门/速成】国赛省一写作手的LaTeX基本知识教学（第1期）" link="https://www.bilibili.com/video/BV1s2ZZBJEV2/" cover="https://www.bilibili.com/favicon.ico">}}
