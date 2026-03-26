@@ -36,6 +36,7 @@ categories = ['Main Sections']
 | reqwest | 网络请求 |
 | config | 配置文件相关 |
 | chrono | 日期与时间 |
+| scopeguard | 实现类似 golang 的 defer 功能 |
 | command | 生成命令行参数 |
 | sea-orm | ORM |
 | <https://github.com/RustCrypto> | 一系列加密库 |
