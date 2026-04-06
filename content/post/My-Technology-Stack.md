@@ -33,9 +33,12 @@ categories = ['Main Sections']
 | tokio | 异步编程 |
 | async-trait | 生成异步 trait 代码 |
 | log | 日志 |
+| env_logger | 日志 |
+| tracing | 日志 |
 | reqwest | 网络请求 |
 | config | 配置文件相关 |
 | chrono | 日期与时间 |
+| time | 时间格式化 |
 | scopeguard | 实现类似 golang 的 defer 功能 |
 | clap | 生成命令行参数 |
 | sea-orm | ORM |
