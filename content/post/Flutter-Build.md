@@ -1,6 +1,6 @@
 +++
 date = '2026-04-16T22:17:09+08:00'
-lastmod = '2026-04-17T10:38:28+08:00'
+lastmod = '2026-04-17T19:39:16+08:00'
 draft = false
 title = 'Flutter 构建指南'
 categories = ['Main Sections']
@@ -148,17 +148,33 @@ systemProp.http.proxyPassword=password
 
 ---
 
-```Kotlin {name="./android/build.gradle.kts",hl_lines=["3-6"]}
-......
-repositories {
-    maven { url = uri("https://maven.aliyun.com/repository/google") }
-    maven { url = uri("https://maven.aliyun.com/repository/central") }
-    maven { url = uri("https://maven.aliyun.com/repository/public") }
-    maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-    google()
-    mavenCentral()
+设置 Gradle 仓库源：
+
+```Kotlin {name="./android/settings.gradle.kts",hl_lines=["3-5", "12-24"]}
+pluginManagement {
+    repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
 }
-......
+
+dependencyResolutionManagement {
+    // 关键：强制优先使用这里的配置
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        maven { url = uri("https://storage.flutter-io.cn/download.flutter.io") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        google()
+        mavenCentral()
+    }
+}
 ```
 
 #### APK 签名配置
@@ -198,8 +214,14 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     // ...
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
     kotlinOptions {
         // 原本是 jvmTarget = JavaVersion.VERSION_17.toString()
+        // java 版本要和上面的内容对应
         jvmTarget = "17"
     }
 
@@ -230,7 +252,7 @@ android {
 使用命令构建：
 
 ```shell
-flutter build apk --split-per-abi -v
+flutter build apk --release --split-per-abi -v
 ```
 
 > [!info]
