@@ -202,7 +202,7 @@ storeFile=your-path\\your-keystore.jks
 
 修改 ./android/app/build.gradle.kts ：
 
-```Kotlin {name="./android/app/build.gradle.kts",hl_lines=["1-8", "13-14", "19-23", "29-33"]}
+```Kotlin {name="./android/app/build.gradle.kts",hl_lines=["1-8", "18-20", "25-29", "35-39"]}
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -222,7 +222,7 @@ android {
     kotlinOptions {
         // 原本是 jvmTarget = JavaVersion.VERSION_17.toString()
         // java 版本要和上面的内容对应
-        jvmTarget = "17"
+        jvmTarget = "21"
     }
 
     signingConfigs {
