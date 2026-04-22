@@ -1,6 +1,6 @@
 +++
 date = '2026-04-16T22:17:09+08:00'
-lastmod = '2026-04-17T19:39:16+08:00'
+lastmod = '2026-04-22T19:40:50+08:00'
 draft = false
 title = 'Flutter 构建指南'
 categories = ['Main Sections']
@@ -49,6 +49,8 @@ cmdline-tools\
 
 配置环境变量 ANDROID_HOME="\<floder-path\>"。
 
+把 "\<floder-path\>/cmdline-tools/latest/bin" 加入到环境变量 path 中。
+
 尝试运行命令 `sdkmanager --list` 。如果报错：“Error: Could not determine SDK root. Error: Either specify it explicitly with --sdk_root= or move this package into its expected location: \<sdk\>\cmdline-tools\latest\”
 
 就把目录结构改为：
@@ -79,6 +81,8 @@ sdkmanager `
 ```
 
 也可以不安装，在构建 Flutter 项目的时候，会自动安装对应的套件。
+
+若是想移除套件，可以先使用 `sdkmanager --list` 查看已经安装的套件，再使用 `sdkmanager --uninstall "platforms;android-xx"` 移除套件。
 
 ### 修改项目构建设置
 
@@ -150,7 +154,7 @@ systemProp.http.proxyPassword=password
 
 设置 Gradle 仓库源：
 
-```Kotlin {name="./android/settings.gradle.kts",hl_lines=["3-5", "12-24"]}
+```Kotlin {name="./android/settings.gradle.kts", hl_lines=["3-5", "12-24"]}
 pluginManagement {
     repositories {
         maven { url = uri("https://maven.aliyun.com/repository/public") }
@@ -173,6 +177,72 @@ dependencyResolutionManagement {
         maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
         google()
         mavenCentral()
+    }
+}
+```
+
+修改 Java 版本：
+
+```Kotlin {name="./android/app/build.gradle.kts", hl_lines=["4-5", "9-11"]}
+android {
+    // ...
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    kotlinOptions {
+        // 原本是 jvmTarget = JavaVersion.VERSION_17.toString()
+        // java 版本要和上面的内容对应
+        jvmTarget = "21"
+    }
+}
+```
+
+#### flutter_rust_bridge 的配置
+
+使用 flutter_rust_bridge 创建项目后，会有 /rust_builder/android 文件夹。为了使构建工具版本的统一，以及配置镜像源，修改以下文件：
+
+```gradle {name="./rust_builder/android/build.gradle", hl_lines=["3-7", "15-19", "30-40"]}
+buildscript {
+    repositories {
+        maven { url = uri("https://storage.flutter-io.cn/download.flutter.io") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.allprojects {
+    repositories {
+        maven { url = uri("https://storage.flutter-io.cn/download.flutter.io") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/central") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        google()
+        mavenCentral()
+    }
+}
+
+android {
+    if (project.android.hasProperty("namespace")) {
+        namespace 'com.flutter_rust_bridge.rust_lib_flutter_rust_app'
+    }
+
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+
+    defaultConfig {
+        minSdkVersion flutter.minSdkVersion
     }
 }
 ```
@@ -202,7 +272,7 @@ storeFile=your-path\\your-keystore.jks
 
 修改 ./android/app/build.gradle.kts ：
 
-```Kotlin {name="./android/app/build.gradle.kts",hl_lines=["1-8", "18-20", "25-29", "35-39"]}
+```Kotlin {name="./android/app/build.gradle.kts", hl_lines=["1-8", "13-17", "23-27"]}
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -213,18 +283,6 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    // ...
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    kotlinOptions {
-        // 原本是 jvmTarget = JavaVersion.VERSION_17.toString()
-        // java 版本要和上面的内容对应
-        jvmTarget = "21"
-    }
-
     signingConfigs {
         create("release") {
             keyAlias = keystoreProperties["keyAlias"] as? String ?: ""
