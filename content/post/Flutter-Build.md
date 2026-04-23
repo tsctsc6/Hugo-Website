@@ -1,6 +1,6 @@
 +++
 date = '2026-04-16T22:17:09+08:00'
-lastmod = '2026-04-22T19:40:50+08:00'
+lastmod = '2026-04-23T20:10:58+08:00'
 draft = false
 title = 'Flutter 构建指南'
 categories = ['Main Sections']
@@ -18,6 +18,158 @@ Flutter 的优点有：
 本文是 Flutter 在各个平台的构建指南。 Host 是 Windows 。
 
 ## Windows
+
+Flutter 官方提供了 msix 的安装包打包方式，以及 Portable 的方式。这里讲一下使用 wix 打包为 msi 安装包的方式。
+
+{{<link title="Building Windows apps with Flutter" link="https://docs.flutter.dev/platform-integration/windows/building" cover="auto">}}
+
+根据上面的文章，发现 Flutter 需要打包进 msi 安装包的内容有 .exe ，若干 .dll 文件，以及一个 data 文件夹。 Flutter 应用程序需要依赖 Visual C++ Redistributable (VCRT) ，为了程序可以随意安装，把 VCRT 直接打包（msvcp140.dll, vcruntime140.dll, vcruntime140_1.dll）。
+
+### 安装 wix
+
+现在是 2026 年， wix 已经发布到 v7 大版本，是基于 .NET 来运行的。首先，安装 .NET SDK 10:
+
+{{<link title="Download .NET 10.0 (Linux, macOS, and Windows) | .NET" link="https://dotnet.microsoft.com/en-us/download/dotnet/10.0" cover="auto">}}
+
+然后使用以下命令安装 wix v7:
+
+```shell
+dotnet tool install --global wix
+```
+
+同意 eula 协议：
+
+```shell
+wix.exe eula accept wix7
+```
+
+### 复制 VCRT 的 dll
+
+可以使用以下 Powershell 脚本复制 VCRT 的 dll 。
+
+```powershell
+$system32Path = "C:\Windows\System32"
+$dlls = @("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll")
+foreach ($dll in $dlls) {
+    $source = Get-ChildItem -Path $system32Path -Filter $dll -Recurse | Select-Object -First 1
+    if ($source) {
+        Copy-Item $source.FullName -Destination "./" -Force
+        Write-Host "Copied: $($source.FullName)"
+    } else {
+        Write-Error "$dll not found"
+    }
+}
+```
+
+### 编写 .wxs 文件
+
+```xml {name="your-app-name.wxs"}
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" 
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+    <Package Name="your-app-name"
+        Manufacturer="your-name" 
+        Version="1.0.0"
+        UpgradeCode="your-guid"
+        Scope="perUser">
+
+        <MediaTemplate EmbedCab="yes" />
+    
+        <ui:WixUI Id="WixUI_FeatureTree" InstallDirectory="INSTALLFOLDER" />
+
+        <StandardDirectory Id="LocalAppDataFolder">
+            <Directory Id="INSTALLFOLDER" Name="flutter_rust_app">
+                <Directory Id="DataInstallDir" Name="data" />
+            </Directory>
+        </StandardDirectory>
+
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="InstallProgramMenuFolder" Name="flutter_rust_app" />
+        </StandardDirectory>
+        <StandardDirectory Id="DesktopFolder" />
+
+        <Feature Id="Main" Title="Application" Description="Install application binaries"
+            Display="expand" ConfigurableDirectory="INSTALLFOLDER"
+            AllowAbsent="no">
+            <ComponentGroupRef Id="AppBinaries" />
+            <ComponentGroupRef Id="DataFiles" />
+
+            <Feature Id="StartMenuShortcut" Title="Start Menu Shortcut" Level="1">
+                <ComponentGroupRef Id="StartMenuShortcutGroup" />
+            </Feature>
+            <Feature Id="DesktopShortcut" Title="Desktop Shortcut" Level="1">
+                <ComponentGroupRef Id="DesktopShortcutGroup" />
+            </Feature>
+        </Feature>
+    </Package>
+
+    <Fragment>
+        <!-- Define the components for the application binaries -->
+        <ComponentGroup Id="AppBinaries" Directory="INSTALLFOLDER">
+            <Component>
+                <File Id="MainExecutable" Source="flutter_rust_app.exe" KeyPath="yes" />
+            </Component>
+            <Component>
+                <File Source="flutter_windows.dll" KeyPath="yes" />
+            </Component>
+            <Component>
+                <File Source="rust_lib_flutter_rust_app.dll" KeyPath="yes" />
+            </Component>
+            <Component>
+                <File Source="msvcp140.dll" KeyPath="yes" />
+            </Component>
+            <Component>
+                <File Source="vcruntime140.dll" KeyPath="yes" />
+            </Component>
+            <Component>
+                <File Source="vcruntime140_1.dll" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+        <ComponentGroup Id="DataFiles" Directory="DataInstallDir">
+            <Files Include="data\**" />
+        </ComponentGroup>
+
+        <!-- Create startmenu shortcut -->
+        <ComponentGroup Id="StartMenuShortcutGroup" Directory="InstallProgramMenuFolder">
+            <Component Id="StartMenuShortcutComponent" Guid="*">
+                <Shortcut Name="flutter_rust_app" 
+                          Description="Launch flutter_rust_app"
+                          Target="[!MainExecutable]" 
+                          WorkingDirectory="INSTALLFOLDER" />
+                <RemoveFolder Id="CleanProgramMenu" On="uninstall" />
+                <RegistryValue Root="HKCU" Key="Software\tsctsc6\flutter_rust_app" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+        <!-- Create desktop shortcut -->
+        <ComponentGroup Id="DesktopShortcutGroup" Directory="DesktopFolder">
+            <Component Id="DesktopShortcutComponent" Guid="*">
+                <Shortcut Name="flutter_rust_app" 
+                          Description="Launch flutter_rust_app"
+                          Target="[!MainExecutable]" 
+                          WorkingDirectory="INSTALLFOLDER" />
+                <RegistryValue Root="HKCU" Key="Software\tsctsc6\flutter_rust_app" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>
+```
+
+### 打包
+
+添加相关扩展：
+
+```shell
+wix extension add WixToolset.UI.wixext
+```
+
+打包：
+
+```shell
+wix build your-app-name.wxs -ext WixToolset.UI.wixext
+```
+
+> [!info]
+> 默认输出的 msi 的名称和 .wxs 文件的名称相同。
 
 ## Android
 
