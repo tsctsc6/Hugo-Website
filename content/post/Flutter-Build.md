@@ -156,6 +156,14 @@ foreach ($dll in $dlls) {
 
 ### 打包
 
+首先构建 Flutter 应用程序：
+
+```shell
+flutter build windows --release -v
+```
+
+把写好的 wxs 移动到输出文件夹下(./build/windows/x64/runner/Release)，复制 VCRT 的 dll 。
+
 添加相关扩展：
 
 ```shell
