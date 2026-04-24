@@ -1,6 +1,6 @@
 +++
 date = '2026-04-16T22:17:09+08:00'
-lastmod = '2026-04-23T20:10:58+08:00'
+lastmod = '2026-04-24T16:42:28+08:00'
 draft = false
 title = 'Flutter 构建指南'
 categories = ['Main Sections']
@@ -47,11 +47,37 @@ wix.exe eula accept wix7
 
 可以使用以下 Powershell 脚本复制 VCRT 的 dll 。
 
+从 System32 获得 dll:
+
 ```powershell
 $system32Path = "C:\Windows\System32"
 $dlls = @("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll")
 foreach ($dll in $dlls) {
     $source = Get-ChildItem -Path $system32Path -Filter $dll -Recurse | Select-Object -First 1
+    if ($source) {
+        Copy-Item $source.FullName -Destination "./" -Force
+        Write-Host "Copied: $($source.FullName)"
+    } else {
+        Write-Error "$dll not found"
+    }
+}
+```
+
+从 Visual Studio Build Tool 获得 dll:
+
+```powershell
+$vsPath = &"${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" `
+    -latest -products * -property installationPath
+
+$redistRoot = Join-Path $vsPath "VC\Redist\MSVC"
+
+$latestVersion = Get-ChildItem -Path $redistRoot | Where-Object { ($_.Name.Length -gt 4) } | Sort-Object Name -Descending | Select-Object -First 1
+
+$crtPath = Join-Path $latestVersion.FullName "x64\Microsoft.VC14*.CRT"
+
+$dlls = @("msvcp140.dll", "vcruntime140.dll", "vcruntime140_1.dll")
+foreach ($dll in $dlls) {
+    $source = Get-ChildItem -Path $crtPath -Filter $dll -Recurse | Select-Object -First 1
     if ($source) {
         Copy-Item $source.FullName -Destination "./" -Force
         Write-Host "Copied: $($source.FullName)"
