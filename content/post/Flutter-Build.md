@@ -17,6 +17,15 @@ Flutter 的优点有：
 
 本文是 Flutter 在各个平台的构建指南。 Host 是 Windows 。
 
+## 所有平台
+
+对于所有平台，设置 flutter 镜像源：
+
+```powershell
+$env:PUB_HOSTED_URL="https://pub.flutter-io.cn"
+$env:FLUTTER_STORAGE_BASE_URL="https://storage.flutter-io.cn"
+```
+
 ## Windows
 
 Flutter 官方提供了 msix 的安装包打包方式，以及 Portable 的方式。这里讲一下使用 wix 打包为 msi 安装包的方式。
@@ -199,7 +208,7 @@ wix extension add WixToolset.UI.wixext
 打包：
 
 ```shell
-wix build your-app-name.wxs -ext WixToolset.UI.wixext
+wix build your-app-name.wxs -ext WixToolset.UI.wixext -v
 ```
 
 > [!info]
@@ -270,104 +279,54 @@ sdkmanager `
 
 若是想移除套件，可以先使用 `sdkmanager --list` 查看已经安装的套件，再使用 `sdkmanager --uninstall "platforms;android-xx"` 移除套件。
 
-### 修改项目构建设置
-
-在新建一个 Flutter 项目后，有一个 android 文件夹。
-
-#### 镜像配置
-
-构建 Android 项目需要下载大量的依赖，所以要配置好镜像。
-
-修改 ./android/gradle.properties 文件，使用操作系统证书库，防止“不信任证书”的错误：
-
-```txt {name="./android/gradle.properties"}
-systemProp.javax.net.ssl.trustStores=
-systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
-```
-
----
-
 第一次运行要下载 Gradle 。
 
 默认情况下， Gradle 会自动下载到 `用户文件夹\.gradle\` 文件夹下。
 
 设置环境变量 GRADLE_USER_HOME="D:\\.user-home\\.gradle" ，之后下载的 Gradle 会安装到这里。
 
-{{< tabs >}}
+### 代理/镜像配置
 
-<!-- tab 从镜像源安装 Gradle -->
+构建 Android 项目需要下载大量的依赖，所以要配置好镜像。
 
-```txt {name="./android/gradle/wrapper/gradle-wrapper.properties"}
-distributionUrl=https://mirrors.aliyun.com/macports/distfiles/gradle/gradle-x.x.x-all.zip
+修改 .gradle/gradle.properties 文件，使用操作系统证书库，防止“不信任证书”的错误：
+
+```txt {name=".gradle/gradle.properties"}
+systemProp.javax.net.ssl.trustStores=
+systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
 ```
 
-<!-- tab 从本地安装 Gradle -->
+配置代理（下载 gradle 的时候用）
 
-```txt {name="./android/gradle/wrapper/gradle-wrapper.properties"}
-distributionUrl=file:///C:/file/path/gradle-x.x.x-all.zip
+```txt {name=".gradle/gradle.properties"}
+systemProp.http.proxyHost=127.0.0.1
+systemProp.http.proxyPort=12808
+systemProp.https.proxyHost=127.0.0.1
+systemProp.https.proxyPort=12808
 ```
-
-{{</ tabs >}}
 
 ---
 
-构建需要下载 maven 包。
+设置 maven 包镜像：
 
-{{< tabs >}}
+```txt {name=".gradle/init.gradle"}
+settingsEvaluated { settings ->
+    settings.dependencyResolutionManagement {
+        repositories {
+            clear()
 
-<!-- tab 从镜像源下载 maven 包 -->
+            maven { url 'https://maven.aliyun.com/repository/public' }
+            maven { url 'https://maven.aliyun.com/repository/google' }
+            maven { url 'https://maven.aliyun.com/repository/central' }
 
-```txt {name="./android/gradle.properties"}
-......
-repositories.grails.default = https://maven.aliyun.com/repository/public
-```
-
-<!-- tab 通过代理下载 maven 包 -->
-
-```txt {name="./android/gradle.properties"}
-......
-systemProp.http.proxyHost=proxy.example.com
-systemProp.http.proxyPort=8080
-systemProp.https.proxyHost=proxy.example.com
-systemProp.https.proxyPort=8080
-systemProp.http.proxyUser=username
-systemProp.http.proxyPassword=password
-```
-
-{{</ tabs >}}
-
----
-
-设置 Gradle 仓库源：
-
-```Kotlin {name="./android/settings.gradle.kts", hl_lines=["3-5", "12-24"]}
-pluginManagement {
-    repositories {
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-dependencyResolutionManagement {
-    // 关键：强制优先使用这里的配置
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    repositories {
-        maven { url = uri("https://storage.flutter-io.cn/download.flutter.io") }
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/central") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-        google()
-        mavenCentral()
+            mavenCentral()
+            google()
+        }
     }
 }
 ```
 
-修改 Java 版本：
+### 修改 Java 版本
 
 ```Kotlin {name="./android/app/build.gradle.kts", hl_lines=["4-5", "9-11"]}
 android {
@@ -389,31 +348,7 @@ android {
 
 使用 flutter_rust_bridge 创建项目后，会有 /rust_builder/android 文件夹。为了使构建工具版本的统一，以及配置镜像源，修改以下文件：
 
-```gradle {name="./rust_builder/android/build.gradle", hl_lines=["3-7", "15-19", "30-40"]}
-buildscript {
-    repositories {
-        maven { url = uri("https://storage.flutter-io.cn/download.flutter.io") }
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/central") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.allprojects {
-    repositories {
-        maven { url = uri("https://storage.flutter-io.cn/download.flutter.io") }
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/central") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-        google()
-        mavenCentral()
-    }
-}
-
+```gradle {name="./rust_builder/android/build.gradle", hl_lines=["6-16"]}
 android {
     if (project.android.hasProperty("namespace")) {
         namespace 'com.flutter_rust_bridge.rust_lib_flutter_rust_app'
@@ -458,7 +393,7 @@ storeFile=your-path\\your-keystore.jks
 
 修改 ./android/app/build.gradle.kts ：
 
-```Kotlin {name="./android/app/build.gradle.kts", hl_lines=["1-8", "13-17", "23-27"]}
+```Kotlin {name="./android/app/build.gradle.kts", hl_lines=["1-8", "11-19", "23-27"]}
 import java.util.Properties
 import java.io.FileInputStream
 
