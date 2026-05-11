@@ -1,6 +1,6 @@
 +++
 date = '2026-04-16T22:17:09+08:00'
-lastmod = '2026-04-24T16:42:28+08:00'
+lastmod = '2026-05-11T11:38:59+08:00'
 draft = false
 title = 'Flutter 构建指南'
 categories = ['Main Sections']
@@ -16,6 +16,12 @@ Flutter 的优点有：
 * 最终产物体积较小。
 
 本文是 Flutter 在各个平台的构建指南。 Host 是 Windows 。
+
+若要集成 rust , 编写内核层，可以使用 flutter_rust_bridge 这个项目：
+
+{{<link title="fzyzcjy/flutter_rust_bridge: Flutter/Dart <-> Rust binding generator, feature-rich, but seamless and simple." link="https://github.com/fzyzcjy/flutter_rust_bridge" cover="auto">}}
+
+注意，在创建项目前，先想好组织名，rust 文件夹，rust 项目名称。命令行使用 `flutter_rust_bridge_codegen create -h` 确认参数。
 
 ## 所有平台
 
@@ -104,7 +110,7 @@ foreach ($dll in $dlls) {
 
     <Package Name="your-app-name"
         Manufacturer="your-name" 
-        Version="1.0.0"
+        Version="$(var.BuildVersion)"
         UpgradeCode="your-guid"
         Scope="perUser">
 
@@ -112,14 +118,16 @@ foreach ($dll in $dlls) {
     
         <ui:WixUI Id="WixUI_FeatureTree" InstallDirectory="INSTALLFOLDER" />
 
+        <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+
         <StandardDirectory Id="LocalAppDataFolder">
-            <Directory Id="INSTALLFOLDER" Name="flutter_rust_app">
+            <Directory Id="INSTALLFOLDER" Name="your-app-name">
                 <Directory Id="DataInstallDir" Name="data" />
             </Directory>
         </StandardDirectory>
 
         <StandardDirectory Id="ProgramMenuFolder">
-            <Directory Id="InstallProgramMenuFolder" Name="flutter_rust_app" />
+            <Directory Id="InstallProgramMenuFolder" Name="your-app-name" />
         </StandardDirectory>
         <StandardDirectory Id="DesktopFolder" />
 
@@ -142,13 +150,13 @@ foreach ($dll in $dlls) {
         <!-- Define the components for the application binaries -->
         <ComponentGroup Id="AppBinaries" Directory="INSTALLFOLDER">
             <Component>
-                <File Id="MainExecutable" Source="flutter_rust_app.exe" KeyPath="yes" />
+                <File Id="MainExecutable" Source="your-app-name.exe" KeyPath="yes" />
             </Component>
             <Component>
                 <File Source="flutter_windows.dll" KeyPath="yes" />
             </Component>
             <Component>
-                <File Source="rust_lib_flutter_rust_app.dll" KeyPath="yes" />
+                <File Source="rust_lib_your-app-name.dll" KeyPath="yes" />
             </Component>
             <Component>
                 <File Source="msvcp140.dll" KeyPath="yes" />
@@ -167,27 +175,33 @@ foreach ($dll in $dlls) {
         <!-- Create startmenu shortcut -->
         <ComponentGroup Id="StartMenuShortcutGroup" Directory="InstallProgramMenuFolder">
             <Component Id="StartMenuShortcutComponent" Guid="*">
-                <Shortcut Name="flutter_rust_app" 
-                          Description="Launch flutter_rust_app"
+                <Shortcut Name="your-app-name" 
+                          Description="Launch your-app-name"
                           Target="[!MainExecutable]" 
                           WorkingDirectory="INSTALLFOLDER" />
                 <RemoveFolder Id="CleanProgramMenu" On="uninstall" />
-                <RegistryValue Root="HKCU" Key="Software\tsctsc6\flutter_rust_app" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
+                <RegistryValue Root="HKCU" Key="Software\your-name\your-app-name" Name="StartMenuShortcut" Type="integer" Value="1" KeyPath="yes" />
             </Component>
         </ComponentGroup>
         <!-- Create desktop shortcut -->
         <ComponentGroup Id="DesktopShortcutGroup" Directory="DesktopFolder">
             <Component Id="DesktopShortcutComponent" Guid="*">
-                <Shortcut Name="flutter_rust_app" 
-                          Description="Launch flutter_rust_app"
+                <Shortcut Name="your-app-name" 
+                          Description="Launch your-app-name"
                           Target="[!MainExecutable]" 
                           WorkingDirectory="INSTALLFOLDER" />
-                <RegistryValue Root="HKCU" Key="Software\tsctsc6\flutter_rust_app" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
+                <RegistryValue Root="HKCU" Key="Software\your-name\your-app-name" Name="DesktopShortcut" Type="integer" Value="1" KeyPath="yes" />
             </Component>
         </ComponentGroup>
     </Fragment>
 </Wix>
 ```
+
+> [!info]
+> `$(var.BuildVersion)` 是**预处理器变量 (Preprocessor Variables)**，能够在命令行生成 msi 时注入。详见下面的构建命令。
+
+> [!info]
+> 注意替换 `your-app-name`, `your-name`, `your-guid` 为实际值。
 
 ### 打包
 
@@ -208,7 +222,7 @@ wix extension add WixToolset.UI.wixext
 打包：
 
 ```shell
-wix build your-app-name.wxs -ext WixToolset.UI.wixext -v
+wix build your-app-name.wxs -d BuildVersion=<version> -ext WixToolset.UI.wixext -v
 ```
 
 > [!info]
@@ -351,7 +365,7 @@ android {
 ```gradle {name="./rust_builder/android/build.gradle", hl_lines=["6-16"]}
 android {
     if (project.android.hasProperty("namespace")) {
-        namespace 'com.flutter_rust_bridge.rust_lib_flutter_rust_app'
+        namespace 'com.flutter_rust_bridge.rust_lib_your-app-name'
     }
 
     compileSdk = flutter.compileSdkVersion
@@ -387,6 +401,9 @@ keyPassword=你的密码
 keyAlias=your-alias
 storeFile=your-path\\your-keystore.jks
 ```
+
+> [!info]
+> 若这么写: `storeFile=.jks` , 则 .jks 文件应该在 ./android/app/ 文件夹中。
 
 > [!warn]
 > 不要把 `./android/key.properties` 文件提交到代码库中。
