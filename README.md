@@ -25,6 +25,10 @@ git commit -m "chore: update reimu"
 git push
 ```
 
+## 更新 reimu 到特定的 tag
+
+首先签出到 main 分支，然后拉取，然后签出到 vx.x.x 即可。
+
 ## reimu 示例
 
 [hugo-reimu-template](https://github.com/D-Sketon/hugo-reimu-template)
