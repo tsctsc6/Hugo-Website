@@ -448,11 +448,14 @@ android {
 使用命令构建：
 
 ```shell
-flutter build apk --release --split-per-abi -v
+flutter build apk --release --target-platform android-arm64 --split-per-abi -v
 ```
 
 > [!info]
 > `--split-per-abi` 是指根据不同的 CPU 架构（ABI）拆分 APK。
+
+> [!info]
+> `--target-platform android-arm64` 是仅生成 arm64 的安装包(v8a)。
 
 > [!info]
 > `-v` 是指打印出所有底层日志。
