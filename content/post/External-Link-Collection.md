@@ -14,3 +14,9 @@ tags = ['external-link-collection']
 {{<externalLinkCard title="原来我一点都不懂 git - YouTube" link="https://www.youtube.com/watch?v=kGdDFfVXbvI" cover="auto">}}
 
 {{<externalLinkCard title="原来我，一点都不懂 git_哔哩哔哩_bilibili" link="https://www.bilibili.com/video/BV18ZiFB3EUy" cover="auto">}}
+
+---
+
+{{<externalLinkCard title="Malloc is NOT Magic: Let's Build it to Learn What's Inside! - YouTube" link="https://www.youtube.com/watch?v=mYBxnojY-JA" cover="auto">}}
+
+{{<externalLinkCard title="自己动手，探究内存分配的内部原理_哔哩哔哩_bilibili" link="https://www.bilibili.com/video/BV1VfLV6NEJE" cover="auto">}}
