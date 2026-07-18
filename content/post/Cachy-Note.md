@@ -184,4 +184,67 @@ sudo snapper -c root create -d "快照描述"
 
 系统会自动处理一系列依赖，并且自动安装 Steam 。
 
-如果有其他不在 Steam 的游戏想玩，可以去社区找找有没有对应的下载器、安装教程之类。
+如果有其他不在 Steam 的游戏想玩，有这么一种技术方案。
+
+安装 ProtronPlus :
+
+```bash
+yay -S ProtonPlus
+```
+
+打开 ProtonPlus ，选择展开 DW Proton 并安装最新版本。
+
+重启 Steam 使更改生效。
+
+在 Steam 库中：
+
+- 添加非 Steam 游戏
+- 浏览
+- 选择 exe 文件。
+
+（可选）：修改 Steam 库的游戏名字。在属性中直接修改名字即可。
+
+- 在属性 -> 兼容性选项卡中，勾选“强制使用特定的...”
+- 选择 DW Proton ，然后关闭窗口。
+
+在 Steam 中启动。
+
+如果刚刚选择的 exe 是安装程序，在安装完毕后，需要更改 Steam 的启动目标。
+
+- 打开属性
+- 更改目标，使其指向实际安装好的程序。另外，确保路径用引号括起来。
+
+如何找到这个程序？要弄清楚这个问题，需要讲讲这套技术方案的原理。
+
+- Proton（基于 Wine 发展而来）是一个兼容层（Compatibility Layer）。它的原理是实时翻译，把 exe 的指令实时翻译为 Linux 的指令。
+- Proton 有 Compatdata（WINEPREFIX）机制。 Steam 会在 `~/.steam/steam/steamapps/compatdata/[contener-id]/pfx/` 创建一个虚拟的 C 盘( `drive_c` 文件夹) 。里面的文件和 Windows 的 C 盘基本相同。
+
+所以，刚刚安装好的程序，就在 `~/.steam/steam/steamapps/compatdata/[contener-id]/pfx/drive_c` 之中。
+
+## 安装 deb 包
+
+有时某些软件只打包了 deb 包，并且社区没有为其重新打包适配 pacman 包管理器，这时就需要把 deb 包转换为 .pkg.tar.xz 文件。
+
+安装 debtap :
+
+```bash
+yay -S debtap
+```
+
+更新 debtap 数据库（这个数据库就是把 deb 的依赖映射到 pacman 的依赖的数据库）：
+
+```bash
+sudo debtap -u
+```
+
+使用 debtap 转换 deb 包
+
+```bash
+debtap xxx.deb
+```
+
+安装
+
+```bash
+sudo pacman -U xxx.pkg.tar.xz
+```
