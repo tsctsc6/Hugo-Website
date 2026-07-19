@@ -28,19 +28,8 @@ rate-mirrors cachyos | sudo tee /etc/pacman.d/cachyos-mirrorlist
 > [!info]
 > `tee` 命令，它允许用户将标准输入的数据同时写入到标准输出（通常是终端）和一个或多个文件中。
 
-如果想要手动指定镜像源：
-
-```bash
-sudo nano /etc/pacman.d/mirrorlist
-
-# 最前面填写：
-Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
-
-sudo nano /etc/pacman.d/cachyos-mirrorlist
-
-# 最前面填写：
-Server = https://mirrors.ustc.edu.cn/cachyos/repo/$arch/$repo
-```
+> [!warning]
+> 不推荐在 mirrorlist 中只填写一个镜像源。
 
 然后点击“启动安装程序”，根据自己的喜好，选择一些选项，开始安装。
 
@@ -217,9 +206,15 @@ yay -S ProtonPlus
 如何找到这个程序？要弄清楚这个问题，需要讲讲这套技术方案的原理。
 
 - Proton（基于 Wine 发展而来）是一个兼容层（Compatibility Layer）。它的原理是实时翻译，把 exe 的指令实时翻译为 Linux 的指令。
-- Proton 有 Compatdata（WINEPREFIX）机制。 Steam 会在 `~/.steam/steam/steamapps/compatdata/[contener-id]/pfx/` 创建一个虚拟的 C 盘( `drive_c` 文件夹) 。里面的文件和 Windows 的 C 盘基本相同。
+- Proton 有 Wine Prefix 机制。 Steam 会在 `~/.steam/steam/steamapps/compatdata/[contener-id]/pfx/` 创建一个虚拟的 C 盘( `drive_c` 文件夹) 。里面的文件和 Windows 的 C 盘基本相同。
 
 所以，刚刚安装好的程序，就在 `~/.steam/steam/steamapps/compatdata/[contener-id]/pfx/drive_c` 之中。
+
+> [!tip]
+> 理论上，可以把许多 exe 放到同一个 Wine Prefix 中。要切换启动的应用，就像上文那样，切换目标程序即可。
+
+> [!warning]
+> 有些游戏启动器，直接调用其他 exe ，很可能会启动失败。建议直接启动目标 exe 。
 
 ## 安装 deb 包
 
