@@ -1,8 +1,8 @@
 +++
 date = '2026-07-18T11:13:03+08:00'
-lastmod = '2026-07-18T11:13:03+08:00'
+lastmod = '2026-07-20T21:57:07+08:00'
 draft = false
-title = 'CachyOS 常用命令'
+title = 'CachyOS 使用指南'
 categories = ['Main Sections']
 tags = ['Linux']
 +++
@@ -15,23 +15,9 @@ CachyOS 会自带一个小型的操作系统。
 
 进入界面后，会有一个 "CachyOS Hello" 的窗口，上面有一个“启动安装程序”的按钮。
 
-但是先不要急着按。先打开终端 (Konsole) ，自动筛选并更新中国区镜像源：
+但是先不要急着按。先点击 "应用/调整" -> 排序镜像。
 
-```bash
-# 测速并生成 Arch Linux 镜像源
-rate-mirrors arch | sudo tee /etc/pacman.d/mirrorlist
-
-# 测速并生成 CachyOS 专属的优化镜像源
-rate-mirrors cachyos | sudo tee /etc/pacman.d/cachyos-mirrorlist
-```
-
-> [!info]
-> `tee` 命令，它允许用户将标准输入的数据同时写入到标准输出（通常是终端）和一个或多个文件中。
-
-> [!warning]
-> 不推荐在 mirrorlist 中只填写一个镜像源。
-
-然后点击“启动安装程序”，根据自己的喜好，选择一些选项，开始安装。
+返回，然后点击“启动安装程序”，根据自己的喜好，选择一些选项，开始安装。
 
 > [!info]
 > 文件系统推荐使用 Btrfs ，因为它能为磁盘创建快照，方便在做出错误操作的时候回滚。
@@ -85,6 +71,14 @@ GLFW_IM_MODULE=fcitx
 
 打开设置 -> 键盘 -> 虚拟键盘 -> 选择 fcitx5 。打开设置 -> 输入法 -> 添加“中州韵”
 
+若是要设置输入法外观：
+
+```bash
+fcitx5-config-qt
+```
+
+附加组件 -> 经典用户界面
+
 ---
 
 安装谷歌浏览器：
@@ -96,7 +90,7 @@ yay -S google-chrome
 顺便一提，要想谷歌浏览器通过代理，需要添加命令行参数：
 
 ```bash
-google-chrome-stable --proxy-server="socks5:127.0.0.1:10808"
+google-chrome-stable --proxy-server="socks5://127.0.0.1:10808"
 ```
 
 ---
@@ -173,7 +167,9 @@ sudo snapper -c root create -d "快照描述"
 
 系统会自动处理一系列依赖，并且自动安装 Steam 。
 
-如果有其他不在 Steam 的游戏想玩，有这么一种技术方案。
+---
+
+如果有其他不在 Steam 的游戏想玩，可以使用 DW Proton 。
 
 安装 ProtronPlus :
 
@@ -218,7 +214,7 @@ yay -S ProtonPlus
 
 ## 安装 deb 包
 
-有时某些软件只打包了 deb 包，并且社区没有为其重新打包适配 pacman 包管理器，这时就需要把 deb 包转换为 .pkg.tar.xz 文件。
+有时某些软件只打包了 deb 包，并且 AUR 助手没有为其重新打包，这时就需要亲自把 deb 包转换为 .pkg.tar.xz 文件。
 
 安装 debtap :
 
